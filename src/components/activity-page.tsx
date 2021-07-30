@@ -36,6 +36,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
     return (
       <Renderer.Component.TabLayout>
         <Renderer.Component.KubeObjectListLayout
+          tableId="pipelineActivities"
           className={styles.PipelineActivityList} store={activitiesStore}
           sortingCallbacks={{
             [sortBy.owner]: (activity: Activity) => activity.spec.gitOwner,
@@ -61,8 +62,8 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
               activity.spec.gitRepository,
               activity.spec.gitBranch,
               activity.buildName,
-              RenderStatus(activity),
-              RenderLastStep(activity)
+              renderStatus(activity),
+              renderLastStep(activity)
             ];
           }}
         />
@@ -71,8 +72,8 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
   }
 }
 
-// RenderLastStep returns the last step
-function RenderStatus(pa: Activity) {
+// renderLastStep returns the last step
+function renderStatus(pa: Activity) {
   if (!pa || !pa.spec) {
     return "";
   }
@@ -83,8 +84,8 @@ function RenderStatus(pa: Activity) {
   );
 }
 
-// RenderLastStep returns the last step
-function RenderLastStep(pa: Activity) {
+// renderLastStep returns the last step
+function renderLastStep(pa: Activity) {
   if (!pa || !pa.spec) {
     return "";
   }
@@ -155,3 +156,4 @@ function RenderLastStep(pa: Activity) {
   }
   return st.name;
 }
+
