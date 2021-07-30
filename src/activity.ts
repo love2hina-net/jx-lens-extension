@@ -1,4 +1,5 @@
 import {Renderer} from "@k8slens/extensions";
+import moment from 'moment';
 
 export class Activity extends Renderer.K8sApi.KubeObject {
   static kind = "PipelineActivity"
@@ -45,7 +46,30 @@ export class Activity extends Renderer.K8sApi.KubeObject {
     }
     return build || context || "";
   }
+
+  get createdAt(): string {
+    return dateFromNow(this.metadata.creationTimestamp);
+  }
+
+  get createdTime(): any {
+    return createdTime(this.metadata.creationTimestamp);
+  }
 }
+
+export function createdTime(timestamp: string | undefined) {
+  if (timestamp) {
+    return moment(timestamp);
+  }
+  return null;
+}
+
+export function dateFromNow(timestamp: string | undefined): string {
+  if (timestamp) {
+    return moment(timestamp).fromNow(false);
+  }
+  return '';
+}
+
 
 export class ActivityStep {
   kind: string;

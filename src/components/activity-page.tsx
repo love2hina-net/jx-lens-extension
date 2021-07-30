@@ -10,7 +10,8 @@ enum sortBy {
   owner = "owner",
   repository = "repository",
   branch = "branch",
-  status = "status"
+  status = "status",
+  age = "age"
 }
 
 // ActivityStatusTypePending an activity step is waiting to start
@@ -43,6 +44,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
             [sortBy.repository]: (activity: Activity) => activity.spec.gitRepository,
             [sortBy.branch]: (activity: Activity) => activity.spec.gitBranch,
             [sortBy.status]: (activity: Activity) => activity.spec.status,
+            [sortBy.age]: (activity: Activity) => activity.createdTime,
           }}
           searchFilters={[
             (activity: Activity) => activity.getSearchFields()
@@ -55,6 +57,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
             {title: "Build", className: "build"},
             {title: "Status", className: "status", sortBy: sortBy.status},
             {title: "Message", className: "message"},
+            {title: "Age", className: "age", sortBy: sortBy.age},
           ]}
           renderTableContents={(activity: Activity) => {
             return [
@@ -63,7 +66,8 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
               activity.spec.gitBranch,
               activity.buildName,
               renderStatus(activity),
-              renderLastStep(activity)
+              renderLastStep(activity),
+              activity.createdAt
             ];
           }}
         />
