@@ -51,6 +51,14 @@ export class Activity extends Renderer.K8sApi.KubeObject {
     return dateFromNow(this.metadata.creationTimestamp);
   }
 
+  get pipelineDescription(): string {
+    const s = this.spec;
+    if (!s) {
+      return "";
+    }
+    return `${s.gitOwner}/${s.gitRepository}/${s.gitBranch} ${this.buildName}`
+  }
+
   get createdTime(): any {
     return createdTime(this.metadata.creationTimestamp);
   }

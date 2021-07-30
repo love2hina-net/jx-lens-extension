@@ -190,7 +190,7 @@ export function openExternalLink(link: string) {
 }
 
 
-function podFromActivity(pa: Activity) {
+export function podFromActivity(pa: Activity) {
   const podApi = Renderer.K8sApi.apiManager.getApi(api => api.kind === "Pod");
   if (!podApi) {
     console.log("no pod api");
@@ -257,6 +257,6 @@ export function activityContainers(pa: Activity): CoreActivityStep[] {
   return answer;
 }
 
-function toContainerName(name: string) {
+export function toContainerName(name: string) {
   return "step-" + name.toLowerCase().split(' ').join('-');
 }
