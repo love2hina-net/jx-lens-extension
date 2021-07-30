@@ -22,14 +22,19 @@
 
 import React from "react";
 import {Common, Renderer} from "@k8slens/extensions";
-import {Activity} from "../activity";
+import {Activity, CoreActivityStep} from "../activity";
 import * as electron from "electron";
+import {IPodContainer} from "@k8slens/extensions/dist/src/renderer/api/endpoints";
 
 const {
   Component: {
+    createTerminalTab,
     logTabStore,
-    MenuItem,
+    terminalStore,
     Icon,
+    MenuItem,
+    SubMenu,
+    StatusBrick,
   },
   Navigation,
 } = Renderer;
@@ -42,16 +47,63 @@ const {
 export interface ActivityMenuProps extends Renderer.Component.KubeObjectMenuProps<Activity> {
 }
 
+
 export class ActivityMenu extends React.Component<ActivityMenuProps> {
   render() {
     const {object, toolbar} = this.props;
 
     let link = object.spec.gitUrl || "";
+    const containers = activityContainers(object);
+
     return (
       <>
-        <MenuItem onClick={Util.prevDefault(() => this.viewLogs())}>
+        <MenuItem>
           <Icon material="subject" interactive={toolbar} tooltip={toolbar && "View the pipeline logs"}/>
           <span className="title">Logs</span>
+          {containers.length > 1 && (
+            <>
+              <Icon className="arrow" material="keyboard_arrow_right"/>
+              <SubMenu>
+                {
+                  containers.map(container => {
+                    const name = toContainerName(container.name);
+
+                    return (
+                      <MenuItem key={name} onClick={Util.prevDefault(() => this.viewLogs(name))}
+                                className="flex align-center">
+                        <StatusBrick/>
+                        <span>{name}</span>
+                      </MenuItem>
+                    );
+                  })
+                }
+              </SubMenu>
+            </>
+          )}
+        </MenuItem>
+        <MenuItem>
+          <Icon svg="ssh" interactive={toolbar} tooltip={toolbar && "Pod Shell"}/>
+          <span className="title">Shell</span>
+          {containers.length > 1 && (
+            <>
+              <Icon className="arrow" material="keyboard_arrow_right"/>
+              <SubMenu>
+                {
+                  containers.map(container => {
+                    const name = toContainerName(container.name);
+
+                    return (
+                      <MenuItem key={name} onClick={Util.prevDefault(() => this.execShell(name))}
+                                className="flex align-center">
+                        <StatusBrick/>
+                        <span>{name}</span>
+                      </MenuItem>
+                    );
+                  })
+                }
+              </SubMenu>
+            </>
+          )}
         </MenuItem>
         <MenuItem onClick={Util.prevDefault(() => this.openLink(link))}>
           <Icon svg="ssh" interactive={toolbar} tooltip={toolbar && "View git repository"}/>
@@ -67,24 +119,59 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
     openExternalLink(link);
   }
 
-  async viewLogs() {
+  async viewLogs(containerName: string) {
+    Navigation.hideDetails();
+
+    const pa = this.props.object;
+    const pod = podFromActivity(pa);
+    //console.log("found pod", pod);
+    if (!pod) {
+      console.log("could not find pod for PipelineActivity", pa);
+      return;
+    }
+
+    const container = pod.spec.containers.find((c: IPodContainer) => c.name == containerName);
+    if (!container) {
+      console.log("could not find container", containerName);
+      return;
+    }
+
+    logTabStore.createPodTab({
+      selectedPod: pod,
+      selectedContainer: container,
+    });
+  }
+
+  async execShell(container?: string) {
     Navigation.hideDetails();
 
     const pa = this.props.object;
     const pod = podFromActivity(pa);
     console.log("found pod", pod);
-
     if (!pod) {
       return;
     }
 
-    // TODO how to find the running container step?
-    // lets find the running container...
-    const container  = pod.spec.containers[0];
-    
-    logTabStore.createPodTab({
-      selectedPod: pod,
-      selectedContainer: container,
+    const containerParam = container ? `-c ${container}` : "";
+    let command = `kubectl exec -i -t -n ${pod.getNs()} ${pod.getName()} ${containerParam} "--"`;
+
+    if (window.navigator.platform !== "Win32") {
+      command = `exec ${command}`;
+    }
+
+    if (pod.getSelectedNodeOs() === "windows") {
+      command = `${command} powershell`;
+    } else {
+      command = `${command} sh -c "clear; (bash || ash || sh)"`;
+    }
+
+    const shell = createTerminalTab({
+      title: `Pod: ${pod.getName()} (namespace: ${pod.getNs()})`
+    });
+
+    terminalStore.sendCommand(command, {
+      enter: true,
+      tabId: shell.id
     });
   }
 }
@@ -142,4 +229,34 @@ function podFromActivity(pa: Activity) {
     return pods.find((pod) => !pod.labels || pod.labels["jenkins.io/pipelineType"] != "meta");
   }
   return null;
+}
+
+/**
+ * activityContainers returns an array of pipeline steps in order
+ */
+export function activityContainers(pa: Activity): CoreActivityStep[] {
+  const answer: CoreActivityStep[] = [];
+  if (!pa || !pa.spec) {
+    return answer;
+  }
+  let steps = pa.spec.steps;
+  if (!steps) {
+    return answer;
+  }
+  steps.forEach((step) => {
+    const st = step.stage;
+    if (st) {
+      const ssteps = st.steps;
+      if (ssteps) {
+        ssteps.forEach((ss) => {
+          answer.push(ss);
+        });
+      }
+    }
+  });
+  return answer;
+}
+
+function toContainerName(name: string) {
+  return "step-" + name.toLowerCase().split(' ').join('-');
 }
