@@ -1,7 +1,10 @@
+import styles from "../../styles.module.scss";
+
 import {Renderer} from "@k8slens/extensions";
 import React from "react";
 import {activitiesStore} from "../activity-store";
 import {Activity} from "../activity"
+import kebabCase from "lodash/kebabCase";
 
 enum sortBy {
   owner = "owner",
@@ -33,7 +36,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
     return (
       <Renderer.Component.TabLayout>
         <Renderer.Component.KubeObjectListLayout
-          className="Certicates" store={activitiesStore}
+          className={styles.PipelineActivityList} store={activitiesStore}
           sortingCallbacks={{
             [sortBy.owner]: (activity: Activity) => activity.spec.gitOwner,
             [sortBy.repository]: (activity: Activity) => activity.spec.gitRepository,
@@ -53,22 +56,31 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
             {title: "Message", className: "message"},
           ]}
           renderTableContents={(activity: Activity) => {
-            let lastStep = RenderLastStep(activity);
-            console.log("last Step", lastStep);
-
             return [
               activity.spec.gitOwner,
               activity.spec.gitRepository,
               activity.spec.gitBranch,
               activity.buildName,
-              activity.spec.status,
-              lastStep
+              RenderStatus(activity),
+              RenderLastStep(activity)
             ];
           }}
         />
       </Renderer.Component.TabLayout>
     )
   }
+}
+
+// RenderLastStep returns the last step
+function RenderStatus(pa: Activity) {
+  if (!pa || !pa.spec) {
+    return "";
+  }
+  let status = pa.spec.status;
+  let statusClass = "status-" + kebabCase(status);
+  return (
+    <span className={styles[statusClass]}>{status}</span>
+  );
 }
 
 // RenderLastStep returns the last step
