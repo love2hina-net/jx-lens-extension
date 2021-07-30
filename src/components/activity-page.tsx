@@ -10,6 +10,23 @@ enum sortBy {
   status = "status"
 }
 
+// ActivityStatusTypePending an activity step is waiting to start
+const ActivityStatusTypePending = "Pending"
+// ActivityStatusTypeRunning an activity is running
+const ActivityStatusTypeRunning = "Running"
+// ActivityStatusTypeSucceeded an activity completed successfully
+const ActivityStatusTypeSucceeded = "Succeeded"
+// ActivityStatusTypeFailed an activity failed
+const ActivityStatusTypeFailed = "Failed"
+// ActivityStatusTypeWaitingForApproval an activity is waiting for approval
+const ActivityStatusTypeWaitingForApproval = "WaitingForApproval"
+// ActivityStatusTypeError there is some error with an activity
+const ActivityStatusTypeError = "Error"
+// ActivityStatusTypeAborted if the workflow was aborted
+const ActivityStatusTypeAborted = "Aborted"
+// ActivityStatusTypeNotExecuted if the workflow was not executed
+const ActivityStatusTypeNotExecuted = "NotExecuted"
+
 export class ActivityPage extends React.Component<{ extension: Renderer.LensExtension }> {
 
   render() {
@@ -35,16 +52,94 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
             {title: "Status", className: "status", sortBy: sortBy.status},
             {title: "Message", className: "message"},
           ]}
-          renderTableContents={(activity: Activity) => [
-            activity.spec.gitOwner,
-            activity.spec.gitRepository,
-            activity.spec.gitBranch,
-            activity.buildName,
-            activity.spec.status,
-            activity.lastStepStatus,
-          ]}
+          renderTableContents={(activity: Activity) => {
+            let lastStep = RenderLastStep(activity);
+            console.log("last Step", lastStep);
+
+            return [
+              activity.spec.gitOwner,
+              activity.spec.gitRepository,
+              activity.spec.gitBranch,
+              activity.buildName,
+              activity.spec.status,
+              lastStep
+            ];
+          }}
         />
       </Renderer.Component.TabLayout>
     )
   }
+}
+
+// RenderLastStep returns the last step
+function RenderLastStep(pa: Activity) {
+  if (!pa || !pa.spec) {
+    return "";
+  }
+  let steps = pa.spec.steps;
+  if (!steps || !steps.length) {
+    return "";
+  }
+  let step = steps[steps.length - 1];
+  if (!step) {
+    return "";
+  }
+
+  let st = step.stage;
+  if (st) {
+    let ssteps = st.steps;
+    if (ssteps && ssteps.length) {
+      for (let i = ssteps.length - 1; i >= 0; i--) {
+        let ss = ssteps[i];
+        if (ss.status == ActivityStatusTypePending && i > 0) {
+          continue;
+        }
+        return ss.name;
+      }
+    }
+    return st.name
+  }
+
+  let promote = step.promote;
+  if (promote) {
+    let prURL = "";
+    let title = ""
+    let pr = promote.pullRequest;
+    if (pr) {
+      prURL = pr.pullRequestURL;
+      title = pr.name;
+    }
+    if (prURL) {
+      let prName = "PR"
+      let i = prURL.lastIndexOf("/");
+      if (i > 0 && i < prURL.length) {
+        prName = prURL.substr(i + 1);
+      }
+      let env = promote.environment;
+      if (env) {
+        // TODO to title for env
+        title = "Promote to " + env;
+      }
+      return (
+        <span>{title} <a href={prURL}>#{prName}</a></span>
+      );
+    }
+    return promote.name;
+  }
+
+  let preview = step.preview;
+  if (preview) {
+    let appURL = preview.applicationURL;
+    if (appURL) {
+      let title = preview.name;
+      if (!title) {
+        title = "Preview"
+      }
+      return (
+        <span>Promote <a href={appURL}>{title}</a></span>
+      );
+    }
+    return preview.name;
+  }
+  return st.name;
 }

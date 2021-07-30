@@ -5,8 +5,8 @@ export class Activity extends Renderer.K8sApi.KubeObject {
   static namespaced = true
   static apiBase = "/apis/jenkins.io/v1/pipelineactivities"
 
-  kind: string
-  apiVersion: string
+  kind: string;
+  apiVersion: string;
   metadata: {
     name: string;
     namespace: string;
@@ -29,13 +29,12 @@ export class Activity extends Renderer.K8sApi.KubeObject {
     gitRepository: string;
     gitUrl: string;
     lastCommitSHA: string;
+    releaseNotesURL: string;
     status: string;
+    version: string;
     creationTimestamp: string;
     completedTimestamp: string;
-  }
-
-  get lastStepStatus(): string {
-    return "Something";
+    steps: ActivityStep[];
   }
 
   get buildName(): string {
@@ -47,3 +46,51 @@ export class Activity extends Renderer.K8sApi.KubeObject {
     return build || context || "";
   }
 }
+
+export class ActivityStep {
+  kind: string;
+  stage: StageActivityStep;
+  preview: PreviewActivityStep;
+  promote: PromoteActivityStep;
+}
+
+export class CoreActivityStep {
+  name: string;
+  description: string;
+  status: string;
+  startedTimestamp: string;
+  completedTimestamp: string;
+}
+
+export class StageActivityStep extends CoreActivityStep {
+  kind: string;
+  steps: CoreActivityStep[];
+}
+
+export class PreviewActivityStep extends CoreActivityStep {
+  environment: string;
+  pullRequestURL: string;
+  applicationURL: string;
+}
+
+export class PromoteActivityStep extends CoreActivityStep {
+  environment: string;
+  pullRequest: PromotePullRequestStep;
+  update: PromoteUpdateStep;
+  applicationURL: string;
+}
+
+export class PromotePullRequestStep extends CoreActivityStep {
+  pullRequestURL: string;
+  mergeCommitSHA: string;
+}
+
+export class PromoteUpdateStep extends CoreActivityStep {
+  statuses: GitStatus[];
+}
+
+export class GitStatus {
+  url: string;
+  status: string;
+}
+
