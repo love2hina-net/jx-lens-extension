@@ -1,6 +1,6 @@
-# Lens Custom Resource Page Extension
+# Lens Extension for working with Jenkins X
 
-Simple Lens extension that shows custom page and details for Certificates CRD.
+This extension improves the UX around working with pipelines and preview environments.
 
 ## Install
 
