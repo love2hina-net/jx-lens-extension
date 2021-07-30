@@ -106,7 +106,7 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
           )}
         </MenuItem>
         <MenuItem onClick={Util.prevDefault(() => this.openLink(link))}>
-          <Icon svg="ssh" interactive={toolbar} tooltip={toolbar && "View git repository"}/>
+          <Icon material="folder" interactive={toolbar} tooltip={toolbar && "View git repository"}/>
           <span className="title">Repository</span>
         </MenuItem>
       </>
