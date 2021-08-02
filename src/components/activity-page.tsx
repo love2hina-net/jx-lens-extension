@@ -5,6 +5,7 @@ import React from "react";
 import {activitiesStore} from "../activity-store";
 import {Activity} from "../activity"
 import kebabCase from "lodash/kebabCase";
+import {ExternalLink} from "./external-link";
 
 enum sortBy {
   owner = "owner",
@@ -138,7 +139,7 @@ function renderLastStep(pa: Activity) {
         title = "Promote to " + env;
       }
       return (
-        <span>{title} <a href={prURL}>#{prName}</a></span>
+        <span>{title} <ExternalLink href={prURL} text={"#" + prName} title="view the prompte Pull Request"></ExternalLink></span>
       );
     }
     return promote.name;
@@ -153,7 +154,7 @@ function renderLastStep(pa: Activity) {
         title = "Preview"
       }
       return (
-        <span>Promote <a href={appURL}>{title}</a></span>
+        <span>Promote <ExternalLink href={appURL} text={title} title="view the preview application"></ExternalLink></span>
       );
     }
     return preview.name;
