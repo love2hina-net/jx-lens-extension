@@ -1,6 +1,8 @@
 dist
 node_modules
 
+package-lock.json
+
 # log file by lens when running tests using @jest-runner/electron
 lens.log
 
