@@ -1,6 +1,6 @@
 {
 	"name": "@jenkins-x-plugins/jx-lens",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Lens extension to visualize Kubernetes resources and their relations",
 	"homepage": "https://github.com/jenkins-x-plugins/jx-lens",
 	"license": "MIT",
