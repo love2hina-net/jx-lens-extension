@@ -16,14 +16,13 @@ jobs:
         with:
           node-version: '12.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install
-      - run: npm version patch
-      - run: npm run build
-#      - name: Publish
-#        uses: mikeal/merge-release@master
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: |
+          git config http.sslVerify false
+          git config user.name "jx-lens"
+          git config user.email "actions@users.noreply.github.com"
+          npm install
+          npm version patch
+          npm run build
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
