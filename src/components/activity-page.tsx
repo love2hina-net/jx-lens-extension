@@ -7,6 +7,13 @@ import {Activity} from "../activity"
 import kebabCase from "lodash/kebabCase";
 import {ExternalLink} from "./external-link";
 
+const {
+  Component: {
+    KubeObjectListLayout,
+    TabLayout,
+  },
+} = Renderer;
+
 enum sortBy {
   owner = "owner",
   repository = "repository",
@@ -36,8 +43,8 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
 
   render() {
     return (
-      <Renderer.Component.TabLayout>
-        <Renderer.Component.KubeObjectListLayout
+      <TabLayout>
+        <KubeObjectListLayout
           tableId="pipelineActivities"
           className={styles.PipelineActivityList} store={activitiesStore}
           sortingCallbacks={{
@@ -72,7 +79,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
             ];
           }}
         />
-      </Renderer.Component.TabLayout>
+      </TabLayout>
     )
   }
 }
@@ -139,7 +146,8 @@ function renderLastStep(pa: Activity) {
         title = "Promote to " + env;
       }
       return (
-        <span>{title} <ExternalLink href={prURL} text={"#" + prName} title="view the prompte Pull Request"></ExternalLink></span>
+        <span>{title} <ExternalLink href={prURL} text={"#" + prName}
+                                    title="view the prompte Pull Request"></ExternalLink></span>
       );
     }
     return promote.name;
@@ -154,7 +162,8 @@ function renderLastStep(pa: Activity) {
         title = "Preview"
       }
       return (
-        <span>Promote <ExternalLink href={appURL} text={title} title="view the preview application"></ExternalLink></span>
+        <span>Promote <ExternalLink href={appURL} text={title}
+                                    title="view the preview application"></ExternalLink></span>
       );
     }
     return preview.name;

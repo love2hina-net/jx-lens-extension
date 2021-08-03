@@ -22,7 +22,7 @@
 
 import React from "react";
 import {Common, Renderer} from "@k8slens/extensions";
-import {Activity, CoreActivityStep} from "../activity";
+import {Activity, ActivityStep, CoreActivityStep} from "../activity";
 import * as electron from "electron";
 import {IPodContainer} from "@k8slens/extensions/dist/src/renderer/api/endpoints";
 
@@ -55,6 +55,8 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
     let link = object.spec.gitUrl || "";
     const containers = activityContainers(object);
 
+    const menuLinks = renderMenuItems(object, toolbar);
+
     return (
       <>
         <MenuItem>
@@ -70,7 +72,8 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
 
                     return (
                       <MenuItem key={name} onClick={Util.prevDefault(() => this.viewLogs(name))}
-                                className="flex align-center">
+                                className="flex align-center"
+                                title="view logs for this pipeline step">
                         <StatusBrick/>
                         <span>{name}</span>
                       </MenuItem>
@@ -94,7 +97,8 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
 
                     return (
                       <MenuItem key={name} onClick={Util.prevDefault(() => this.execShell(name))}
-                                className="flex align-center">
+                                className="flex align-center"
+                                title="open a shell into this pipeline step">
                         <StatusBrick/>
                         <span>{name}</span>
                       </MenuItem>
@@ -105,10 +109,11 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
             </>
           )}
         </MenuItem>
-        <MenuItem onClick={Util.prevDefault(() => this.openLink(link))}>
-          <Icon material="source" interactive={toolbar} tooltip={toolbar && "View git repository"}/>
+        <MenuItem onClick={Util.prevDefault(() => this.openLink(link))} title="View git repository">
+          <Icon material="source" interactive={toolbar}/>
           <span className="title">Repository</span>
         </MenuItem>
+        {menuLinks}
       </>
     );
   }
@@ -259,4 +264,78 @@ export function activityContainers(pa: Activity): CoreActivityStep[] {
 
 export function toContainerName(name: string) {
   return "step-" + name.toLowerCase().split(' ').join('-');
+}
+
+// renderMenuItems returns the menu item links for an activity
+function renderMenuItems(pa: Activity, toolbar?: boolean) {
+  const links: any[] = [];
+
+  if (!pa || !pa.spec) {
+    return links;
+  }
+  let steps = pa.spec.steps;
+  if (!steps || !steps.length) {
+    return links;
+  }
+  const version = pa.spec.version;
+  const releaseNotesURL = pa.spec.releaseNotesURL;
+  if (version && releaseNotesURL) {
+    links.push((
+      <MenuItem onClick={Util.prevDefault(() => openExternalLink(releaseNotesURL))} title="view the release notes">
+        <Icon material="description" interactive={toolbar}/>
+        <span className="title">{version}</span>
+      </MenuItem>
+    ));
+  }
+
+  pa.spec.steps.forEach((step: ActivityStep) => {
+    let promote = step.promote;
+    if (promote) {
+      let prURL = "";
+      let title = ""
+      let pr = promote.pullRequest;
+      if (pr) {
+        prURL = pr.pullRequestURL;
+        title = pr.name;
+      }
+      if (prURL) {
+        let prName = "PR"
+        let i = prURL.lastIndexOf("/");
+        if (i > 0 && i < prURL.length) {
+          prName = prURL.substr(i + 1);
+        }
+        let env = promote.environment;
+        if (env) {
+          // TODO to title for env
+          title = "Promote to " + env;
+        }
+
+        links.push((
+          <MenuItem onClick={Util.prevDefault(() => openExternalLink(prURL))}
+                    title="view the promote Pull Request">
+            <Icon material="code" interactive={toolbar}/>
+            <span className="title">{title}</span>
+          </MenuItem>
+        ));
+      }
+    }
+    let preview = step.preview;
+    if (preview) {
+      let appURL = preview.applicationURL;
+      if (appURL) {
+        let title = preview.name;
+        if (!title) {
+          title = "Preview"
+        }
+        links.push((
+          <MenuItem onClick={Util.prevDefault(() => openExternalLink(appURL))}
+                    title="View the preview environment application">
+            <Icon material="visibility" interactive={toolbar}/>
+            <span className="title">View Preview</span>
+          </MenuItem>
+        ));
+      }
+    }
+  });
+  return links;
 }
