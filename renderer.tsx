@@ -6,10 +6,10 @@ import {Activity} from "./src/activity"
 import {ActivityMenu, ActivityMenuProps} from "./src/components/activity-menu";
 import {PreviewPage} from "./src/components/preview-page";
 
-export function CertificateIcon(props: Renderer.Component.IconProps) {
-  //return <Renderer.Component.Icon {...props} material="security" tooltip="Certificates"/>
-  return <Renderer.Component.Icon {...props} material="extension" tooltip="Jenkins X"/>
-  //return <Renderer.Component.Icon {...props} href="https://raw.githubusercontent.com/jenkins-x/jenkins-x-website/master/images/logo/jenkinsx-ico-white.svg" tooltip="Jenkins X"/>
+export function JXIcon(props: Renderer.Component.IconProps) {
+  const JXLogo = require(`!!raw-loader!./jx.svg`).default;
+
+  return <Renderer.Component.Icon {...props} svg={JXLogo} tooltip="Jenkins X"/>
 }
 
 export default class JenkinsXExtension extends Renderer.LensExtension {
@@ -18,13 +18,13 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       id: "pipelines",
       components: {
         Page: () => <ActivityPage extension={this}/>,
-        MenuIcon: CertificateIcon,
+        MenuIcon: JXIcon,
       }
     }, {
       id: "previews",
       components: {
         Page: () => <PreviewPage extension={this}/>,
-        MenuIcon: CertificateIcon,
+        MenuIcon: JXIcon,
       }
     }
   ]
@@ -34,14 +34,14 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       target: {pageId: "pipelines"},
       title: "Jenkins X: Pipelines",
       components: {
-        Icon: CertificateIcon,
+        Icon: JXIcon,
       }
     },
     {
       target: {pageId: "previews"},
       title: "Jenkins X: Previews",
       components: {
-        Icon: CertificateIcon,
+        Icon: JXIcon,
       }
     },
   ];
