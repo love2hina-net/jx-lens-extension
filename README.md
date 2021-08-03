@@ -26,13 +26,16 @@ cd jx-lens
 npm install
 npm run build
 ```
+ 
+### Incremental building
 
 If you want to watch for any source code changes and automatically rebuild the extension you can use:
 
 ```sh
-cd jx-lens
-npm run dev
+npm start
 ```
+       
+Once the extension has been rebuilt inside `Lens` you can click on the `View -> Reload` menu item (or `R' keypress) to reload to see the new changes.
 
 ## Test
 
