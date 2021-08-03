@@ -5,6 +5,8 @@ import {ActivityPage} from "./src/components/activity-page";
 import {Activity} from "./src/activity"
 import {ActivityMenu, ActivityMenuProps} from "./src/components/activity-menu";
 import {PreviewPage} from "./src/components/preview-page";
+import {PreviewMenu, PreviewMenuProps} from "./src/components/preview-menu";
+import {Preview} from "./src/preview";
 
 export function JXIcon(props: Renderer.Component.IconProps) {
   const JXLogo = require(`!!raw-loader!./jx.svg`).default;
@@ -52,6 +54,13 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       apiVersions: ["jenkins.io/v1"],
       components: {
         MenuItem: (props: ActivityMenuProps) => <ActivityMenu {...props} />
+      }
+    },
+    {
+      kind: Preview.kind,
+      apiVersions: ["preview.jenkins.io/v1alpha1"],
+      components: {
+        MenuItem: (props: PreviewMenuProps) => <PreviewMenu {...props} />
       }
     },
   ];
