@@ -31,7 +31,7 @@ export class PreviewPage extends React.Component<{ extension: Renderer.LensExten
           searchFilters={[
             (preview: Preview) => preview.getSearchFields()
           ]}
-          renderHeaderTitle="Activities"
+          renderHeaderTitle="Previews"
           renderTableHeader={[
             {title: "Owner", className: "owner", sortBy: sortBy.owner},
             {title: "Repository", className: "repository", sortBy: sortBy.repository},

@@ -33,15 +33,26 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
 
   clusterPageMenus = [
     {
-      target: {pageId: "pipelines"},
-      title: "Jenkins X: Pipelines",
+      id: "jenkins-x",
+      title: "Jenkins X",
       components: {
         Icon: JXIcon,
       }
     },
     {
+      id: "jenkins-x/pipelines",
+      parentId: "jenkins-x",
+      target: {pageId: "pipelines"},
+      title: "Pipelines",
+      components: {
+        Icon: JXIcon,
+      }
+    },
+    {
+      id: "jenkins-x/previews",
+      parentId: "jenkins-x",
       target: {pageId: "previews"},
-      title: "Jenkins X: Previews",
+      title: "Previews",
       components: {
         Icon: JXIcon,
       }

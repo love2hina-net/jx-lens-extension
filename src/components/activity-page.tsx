@@ -57,7 +57,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
           searchFilters={[
             (activity: Activity) => activity.getSearchFields()
           ]}
-          renderHeaderTitle="Activities"
+          renderHeaderTitle="Pipelines"
           renderTableHeader={[
             {title: "Owner", className: "owner", sortBy: sortBy.owner},
             {title: "Repository", className: "repository", sortBy: sortBy.repository},
