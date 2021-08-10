@@ -10,6 +10,9 @@ import {Preview} from "./src/preview";
 import {RepositoryPage} from "./src/components/repository-page";
 import {Repository} from "./src/repository";
 import {RepositoryMenu, RepositoryMenuProps} from "./src/components/repository-menu";
+import {Environment} from "./src/environment";
+import {EnvironmentMenu, EnvironmentMenuProps} from "./src/components/environment-menu";
+import {EnvironmentPage} from "./src/components/environment-page";
 
 export function JXIcon(props: Renderer.Component.IconProps) {
   const JXLogo = require(`!!raw-loader!./jx.svg`).default;
@@ -20,6 +23,12 @@ export function JXIcon(props: Renderer.Component.IconProps) {
 export default class JenkinsXExtension extends Renderer.LensExtension {
   clusterPages = [
     {
+      id: "environments",
+      components: {
+        Page: () => <EnvironmentPage extension={this}/>,
+        MenuIcon: JXIcon,
+      }
+    }, {
       id: "pipelines",
       components: {
         Page: () => <ActivityPage extension={this}/>,
@@ -44,6 +53,15 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
     {
       id: "jenkins-x",
       title: "Jenkins X",
+      components: {
+        Icon: JXIcon,
+      }
+    },
+    {
+      id: "jenkins-x/environments",
+      parentId: "jenkins-x",
+      target: {pageId: "environments"},
+      title: "Environments",
       components: {
         Icon: JXIcon,
       }
@@ -78,6 +96,13 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
   ];
 
   kubeObjectMenuItems = [
+    {
+      kind: Environment.kind,
+      apiVersions: ["jenkins.io/v1"],
+      components: {
+        MenuItem: (props: EnvironmentMenuProps) => <EnvironmentMenu {...props} />
+      }
+    },
     {
       kind: Activity.kind,
       apiVersions: ["jenkins.io/v1"],
