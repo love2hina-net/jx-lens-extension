@@ -59,4 +59,12 @@ export class PreviewPullRequest {
   url: string;
   title: string;
   description: string;
+  user: PreviewUser;
+}
+
+export class PreviewUser {
+  name: string;
+  username: string;
+  imageUrl: string;
+  linkUrl: string;
 }
