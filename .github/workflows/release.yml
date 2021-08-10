@@ -26,6 +26,16 @@ jobs:
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: cat package.json | jq -r .version > VERSION
       - run: ./.github/workflows/publish.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - env:
+          GIT_USERNAME: jstrachan
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          XDG_CONFIG_HOME: /github/home/.config
+        name: promote-release
+        uses: docker://ghcr.io/jenkins-x/jx-updatebot:0.1.1
+        with:
+          entrypoint: jx-updatebot
+          args: pr --git-credentials
