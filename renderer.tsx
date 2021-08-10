@@ -7,6 +7,9 @@ import {ActivityMenu, ActivityMenuProps} from "./src/components/activity-menu";
 import {PreviewPage} from "./src/components/preview-page";
 import {PreviewMenu, PreviewMenuProps} from "./src/components/preview-menu";
 import {Preview} from "./src/preview";
+import {RepositoryPage} from "./src/components/repository-page";
+import {Repository} from "./src/repository";
+import {RepositoryMenu, RepositoryMenuProps} from "./src/components/repository-menu";
 
 export function JXIcon(props: Renderer.Component.IconProps) {
   const JXLogo = require(`!!raw-loader!./jx.svg`).default;
@@ -26,6 +29,12 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       id: "previews",
       components: {
         Page: () => <PreviewPage extension={this}/>,
+        MenuIcon: JXIcon,
+      }
+    }, {
+      id: "repositories",
+      components: {
+        Page: () => <RepositoryPage extension={this}/>,
         MenuIcon: JXIcon,
       }
     }
@@ -57,6 +66,15 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
         Icon: JXIcon,
       }
     },
+    {
+      id: "jenkins-x/repositories",
+      parentId: "jenkins-x",
+      target: {pageId: "repositories"},
+      title: "Repositories",
+      components: {
+        Icon: JXIcon,
+      }
+    },
   ];
 
   kubeObjectMenuItems = [
@@ -72,6 +90,13 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       apiVersions: ["preview.jenkins.io/v1alpha1"],
       components: {
         MenuItem: (props: PreviewMenuProps) => <PreviewMenu {...props} />
+      }
+    },
+    {
+      kind: Repository.kind,
+      apiVersions: ["jenkins.io/v1"],
+      components: {
+        MenuItem: (props: RepositoryMenuProps) => <RepositoryMenu {...props} />
       }
     },
   ];
