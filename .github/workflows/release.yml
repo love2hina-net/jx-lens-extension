@@ -31,12 +31,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
-          git config user.name "jstrachan"
-          git config user.email "james.strachan@gmail.com"
+          git config --global user.name "jstrachan"
+          git config --global user.email "james.strachan@gmail.com"
       - env:
           GIT_USERNAME: jstrachan
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          XDG_CONFIG_HOME: /github/home/.config
+          XDG_CONFIG_HOME: /tmp/git-config
         name: promote-release
         uses: docker://ghcr.io/jenkins-x/jx-updatebot:0.1.1
         with:
