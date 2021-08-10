@@ -6,6 +6,6 @@ spec:
         - https://github.com/jenkins-x/jx-docs.git
       changes:
         - regex:
-            pattern: "release = \"(.*)\""
+            pattern: "jx_lens_version = \"(.*)\""
             files:
               - config.toml
