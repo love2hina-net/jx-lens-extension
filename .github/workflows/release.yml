@@ -31,15 +31,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
-          git config --global user.name "jstrachan"
-          git config --global user.email "james.strachan@gmail.com"
+          git config --global user.name "jenkins-x-bot-test"
+          git config --global user.email "jenkins-x@googlegroups.com"
           git config --global credential.helper store
       - env:
-          GIT_USERNAME: jstrachan
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USERNAME: jenkins-x-bot-test
+          GIT_TOKEN: ${{ secrets.GHCR_TOKEN }}
           XDG_CONFIG_HOME: /tmp/git-config
         name: promote-release
         uses: docker://ghcr.io/jenkins-x/jx-updatebot:0.1.1
         with:
           entrypoint: jx-updatebot
-          args: pr --git-credentials
+          args: pr --git-credentials --git-user-email jenkins-x@googlegroups.com
