@@ -33,6 +33,7 @@ jobs:
       - run: |
           git config --global user.name "jstrachan"
           git config --global user.email "james.strachan@gmail.com"
+          git config --global credential.helper store
       - env:
           GIT_USERNAME: jstrachan
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
