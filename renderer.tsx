@@ -13,6 +13,7 @@ import {RepositoryMenu, RepositoryMenuProps} from "./src/components/repository-m
 import {Environment} from "./src/environment";
 import {EnvironmentMenu, EnvironmentMenuProps} from "./src/components/environment-menu";
 import {EnvironmentPage} from "./src/components/environment-page";
+import {BreakpointPage} from "./src/components/breakpoint-page";
 
 export function JXIcon(props: Renderer.Component.IconProps) {
   const JXLogo = require(`!!raw-loader!./jx.svg`).default;
@@ -23,6 +24,12 @@ export function JXIcon(props: Renderer.Component.IconProps) {
 export default class JenkinsXExtension extends Renderer.LensExtension {
   clusterPages = [
     {
+      id: "breakpoints",
+      components: {
+        Page: () => <BreakpointPage extension={this}/>,
+        MenuIcon: JXIcon,
+      }
+    }, {
       id: "environments",
       components: {
         Page: () => <EnvironmentPage extension={this}/>,
@@ -53,6 +60,15 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
     {
       id: "jenkins-x",
       title: "Jenkins X",
+      components: {
+        Icon: JXIcon,
+      }
+    },
+    {
+      id: "jenkins-x/breakpoints",
+      parentId: "jenkins-x",
+      target: {pageId: "breakpoints"},
+      title: "Breakpoints",
       components: {
         Icon: JXIcon,
       }
