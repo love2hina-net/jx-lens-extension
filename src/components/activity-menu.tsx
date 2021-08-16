@@ -55,60 +55,99 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
     let link = object.spec.gitUrl || "";
     const containers = activityContainers(object);
 
+    const runningContainerStep = findLatestRunningContainerStep(containers, false);
+    const latestContainerName = findLatestRunningContainerStep(containers, true);
+
     const menuLinks = renderMenuItems(object, toolbar);
 
     return (
       <>
-        <MenuItem>
-          <Icon material="subject" interactive={toolbar} tooltip={toolbar && "View the pipeline logs"}/>
-          <span className="title">Logs</span>
-          {containers.length > 1 && (
+        {containers.length > 0 && (
+          <MenuItem>
+            <Icon material="subject" interactive={toolbar} tooltip={toolbar && "View the pipeline logs"}/>
+            <span className="title">Logs</span>
             <>
               <Icon className="arrow" material="keyboard_arrow_right"/>
               <SubMenu>
-                {
-                  containers.map(container => {
-                    const name = toContainerName(container.name);
+                {latestContainerName && (
+                  <MenuItem key={"latest-step-" + latestContainerName}
+                            onClick={Util.prevDefault(() => this.viewLogs(latestContainerName))}
+                            className="flex align-center"
+                            title={"view logs for the latest pipeline step: " + latestContainerName}>
+                    <StatusBrick/>
+                    <span>latest step</span>
+                  </MenuItem>
+                )}
+                {latestContainerName && containers.length > 1 && (
+                  <>
+                    <MenuItem key={"-separator-"}
+                              className="flex align-center">
+                      <span></span>
+                    </MenuItem>
+                    {
+                      containers.map(container => {
+                        const name = toContainerName(container.name);
 
-                    return (
-                      <MenuItem key={name} onClick={Util.prevDefault(() => this.viewLogs(name))}
-                                className="flex align-center"
-                                title="view logs for this pipeline step">
-                        <StatusBrick/>
-                        <span>{name}</span>
-                      </MenuItem>
-                    );
-                  })
-                }
+                        return (
+                          <MenuItem key={name} onClick={Util.prevDefault(() => this.viewLogs(name))}
+                                    className="flex align-center"
+                                    title="view logs for this pipeline step">
+                            <StatusBrick/>
+                            <span>{name}</span>
+                          </MenuItem>
+                        );
+                      })
+                    }
+                  </>
+                )}
               </SubMenu>
             </>
-          )}
-        </MenuItem>
-        <MenuItem>
-          <Icon svg="ssh" interactive={toolbar} tooltip={toolbar && "Pod Shell"}/>
-          <span className="title">Shell</span>
-          {containers.length > 1 && (
-            <>
-              <Icon className="arrow" material="keyboard_arrow_right"/>
-              <SubMenu>
-                {
-                  containers.map(container => {
-                    const name = toContainerName(container.name);
-
-                    return (
-                      <MenuItem key={name} onClick={Util.prevDefault(() => this.execShell(name))}
-                                className="flex align-center"
-                                title="open a shell into this pipeline step">
-                        <StatusBrick/>
-                        <span>{name}</span>
+          </MenuItem>
+        )}
+        {containers.length > 0 && runningContainerStep && (
+          <MenuItem>
+            <Icon svg="ssh" interactive={toolbar} tooltip={toolbar && "Pod Shell"}/>
+            <span className="title">Shell</span>
+            {containers.length > 0 && runningContainerStep && (
+              <>
+                <Icon className="arrow" material="keyboard_arrow_right"/>
+                <SubMenu>
+                  {runningContainerStep && (
+                    <MenuItem key={"latest-step-" + runningContainerStep}
+                              onClick={Util.prevDefault(() => this.execShell(runningContainerStep))}
+                              className="flex align-center"
+                              title={"open a shell in the latest pipeline step: " + runningContainerStep}>
+                      <StatusBrick/>
+                      <span>latest step</span>
+                    </MenuItem>
+                  )}
+                  {runningContainerStep && containers.length > 1 && (
+                    <>
+                      <MenuItem key={"-separator-"}
+                                className="flex align-center">
+                        <span></span>
                       </MenuItem>
-                    );
-                  })
-                }
-              </SubMenu>
-            </>
-          )}
-        </MenuItem>
+                      {
+                        containers.map(container => {
+                          const name = toContainerName(container.name);
+
+                          return (
+                            <MenuItem key={name} onClick={Util.prevDefault(() => this.execShell(name))}
+                                      className="flex align-center"
+                                      title="open a shell into this pipeline step">
+                              <StatusBrick/>
+                              <span>{name}</span>
+                            </MenuItem>
+                          );
+                        })
+                      }
+                    </>
+                  )}
+                </SubMenu>
+              </>
+            )}
+          </MenuItem>
+        )}
         <MenuItem onClick={Util.prevDefault(() => this.openLink(link))} title="View git repository">
           <Icon material="source" interactive={toolbar}/>
           <span className="title">Repository</span>
@@ -260,6 +299,22 @@ export function activityContainers(pa: Activity): CoreActivityStep[] {
     }
   });
   return answer;
+}
+
+function findLatestRunningContainerStep(containers: CoreActivityStep[], useLastIfNotRunning: boolean): string {
+  let last = "";
+  if (containers) {
+    for (const c of containers) {
+      if (!c.completedTimestamp) {
+        return toContainerName(c.name);
+      }
+      last = c.name;
+    }
+  }
+  if (useLastIfNotRunning && last) {
+    return toContainerName(last);
+  }
+  return "";
 }
 
 export function toContainerName(name: string) {
