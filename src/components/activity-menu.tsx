@@ -25,9 +25,12 @@ import {Common, Renderer} from "@k8slens/extensions";
 import {Activity, ActivityStep, CoreActivityStep} from "../activity";
 import * as electron from "electron";
 import {IPodContainer} from "@k8slens/extensions/dist/src/renderer/api/endpoints";
+import {breakpointsStore} from "../breakpoint-store";
+import {Breakpoint, BreakpointFilter} from "../breakpoint";
 
 const {
   Component: {
+    ConfirmDialog,
     createTerminalTab,
     logTabStore,
     terminalStore,
@@ -47,8 +50,8 @@ const {
 export interface ActivityMenuProps extends Renderer.Component.KubeObjectMenuProps<Activity> {
 }
 
-
 export class ActivityMenu extends React.Component<ActivityMenuProps> {
+
   render() {
     const {object, toolbar} = this.props;
 
@@ -59,6 +62,7 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
     const latestContainerName = findLatestRunningContainerStep(containers, true);
 
     const menuLinks = renderMenuItems(object, toolbar);
+    const breakpoint = breakpointFromActivity(object);
 
     return (
       <>
@@ -148,6 +152,31 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
             )}
           </MenuItem>
         )}
+        {breakpointsStore.isLoaded && (
+          <MenuItem>
+            <Icon material="adb" interactive={toolbar} tooltip={toolbar && "Pipeline breakpoint"}/>
+            <span className="title">Breakpoint</span>
+            <>
+              <Icon className="arrow" material="keyboard_arrow_right"/>
+              <SubMenu>
+                {breakpoint && (
+                  <MenuItem onClick={Util.prevDefault(() => this.removeBreakpoint(breakpoint))}
+                            title="Delete the breakpoint">
+                    <Icon material="delete" interactive={toolbar} tooltip="Delete"/>
+                    <span className="title">Remove</span>
+                  </MenuItem>
+                )}
+                {!breakpoint && (
+                  <MenuItem onClick={Util.prevDefault(() => this.addBreakpoint(object))}
+                            title="Add breakpoint breakpoint">
+                    <Icon material="add" interactive={toolbar}/>
+                    <span className="title">Add</span>
+                  </MenuItem>
+                )}
+              </SubMenu>
+            </>
+          </MenuItem>
+        )}
         <MenuItem onClick={Util.prevDefault(() => this.openLink(link))} title="View git repository">
           <Icon material="source" interactive={toolbar}/>
           <span className="title">Repository</span>
@@ -218,6 +247,46 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
       tabId: shell.id
     });
   }
+
+  async removeBreakpoint(breakpoint: Breakpoint) {
+    ConfirmDialog.open({
+      ok: () => this.doRemoveBreakpoint(breakpoint),
+      labelOk: `Remove`,
+      message: <div>Remove the Breakpoint <b>{breakpoint.metadata.name}</b>?</div>,
+    });
+  }
+
+  private doRemoveBreakpoint(breakpoint: Breakpoint) {
+    return breakpointsStore.remove(breakpoint);
+  }
+
+
+  async addBreakpoint(pa: Activity) {
+    ConfirmDialog.open({
+      ok: () => this.doAddBreakpoint(pa),
+      labelOk: `Add`,
+      message: <div>Add a breakpoint for the Pipeline <b>{pa.metadata.name}</b>?</div>,
+    });
+  }
+
+  async doAddBreakpoint(pa: Activity) {
+    const ns = pa.metadata.namespace;
+    const name = pa.metadata.name;
+    const filter = activityToBreakpointFilter(pa);
+    const bp = {
+      spec: {
+        filter: filter,
+        debug: {
+          breakpoint: ["onFailure"],
+        }
+      }
+    }
+    
+    breakpointsStore.create({
+      name: name,
+      namespace: ns
+    }, bp);
+  }
 }
 
 /**
@@ -274,6 +343,22 @@ export function podFromActivity(pa: Activity) {
   }
   return null;
 }
+
+export function breakpointFromActivity(pa: Activity) {
+  const filter = activityToBreakpointFilter(pa);
+  return breakpointsStore.getBreakpointForActivity(filter);
+}
+
+export function activityToBreakpointFilter(pa: Activity): BreakpointFilter {
+  let ps = pa.spec;
+  return {
+    branch: ps.gitBranch,
+    owner: ps.gitOwner,
+    repository: ps.gitRepository,
+    context: ps.context
+  }
+}
+
 
 /**
  * activityContainers returns an array of pipeline steps in order

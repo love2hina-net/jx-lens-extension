@@ -47,3 +47,24 @@ export class BreakpointFilter {
 export class BreakpointDebug {
   breakpoint: string[];
 }
+
+
+// BreakpointFilterMatches returns true if this filter matches the given filter
+export function BreakpointFilterMatches(a: BreakpointFilter, b: BreakpointFilter): boolean {
+  if (!a || !b) {
+    return false;
+  }
+  if (a.owner && a.owner !== b.owner) {
+    return false;
+  }
+  if (a.repository && a.repository !== b.repository) {
+    return false;
+  }
+  if (a.branch && a.branch !== b.branch) {
+    return false;
+  }
+  if (a.context && a.context !== b.context) {
+    return false;
+  }
+  return true;
+}

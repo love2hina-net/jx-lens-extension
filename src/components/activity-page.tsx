@@ -6,6 +6,7 @@ import {activitiesStore} from "../activity-store";
 import {Activity} from "../activity"
 import kebabCase from "lodash/kebabCase";
 import {ExternalLink} from "./external-link";
+import {breakpointsStore} from "../breakpoint-store";
 
 const {
   Component: {
@@ -54,6 +55,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
             [sortBy.status]: (activity: Activity) => activity.spec.status,
             [sortBy.age]: (activity: Activity) => activity.createdTime,
           }}
+          dependentStores={[breakpointsStore]}
           searchFilters={[
             (activity: Activity) => activity.getSearchFields()
           ]}
