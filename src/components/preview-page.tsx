@@ -102,10 +102,13 @@ function renderAuthor(preview: Preview) {
     linkUrl = "https://github.com/" + user.username;
   }
   return (
-    <span title={user.username}>
+    <span
+        title={user.username}
+        className={styles["author-details"]}
+    >
       <figure key="image">
         <img
-          height='24' width='24'
+          height='18' width='18'
           src={imageUrl}
           onLoad={evt => evt.currentTarget.classList.add("visible")}
         />
