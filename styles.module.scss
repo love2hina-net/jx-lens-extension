@@ -1,5 +1,4 @@
 .PipelineActivityList {
-
   .status-running {
     color: cornflowerblue;
   }
@@ -13,8 +12,6 @@
   }
 }
 
-
-
 .RepositoryList {
   .status-running {
     color: cornflowerblue;
@@ -26,5 +23,16 @@
 
   .status-failed {
     color: red;
+  }
+}
+
+.PreviewList {
+  .author-details {
+    figure {
+      display: inherit;
+      img {
+        display: inherit;
+      }
+    }
   }
 }
