@@ -1,0 +1,50 @@
+{
+  "type": "commonjs",
+  "private": true,
+  "name": "@love2hina/jx-lens-extension",
+  "version": "0.0.1-alpha1",
+  "description": "Lens extension for Jenkins X",
+  "author": "webmaster@love2hina.net",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/love2hina-net/jx-lens-extension.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=16",
+    "lens": "^6.3.0"
+  },
+  "main": "dist/main.js",
+  "renderer": "dist/renderer.js",
+  "scripts": {
+    "start": "webpack --watch",
+    "build": "npm run clean && webpack --config webpack.config.prod.js",
+    "dev": "npm run clean && webpack --config webpack.config.dev.js",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "react-open-doodles": "^1.0.5"
+  },
+  "devDependencies": {
+    "@k8slens/extensions": "^6.5.2",
+    "@types/node": "^20.10.4",
+    "@types/react": "^16.9.35",
+    "ts-loader": "^8.0.4",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "rimraf": "^5.0.5"
+  },
+  "build": {
+    "asar": true,
+    "files": [
+      "dist"
+    ]
+  },
+  "keywords": [
+    "k8slens",
+    "lens",
+    "extension",
+    "jenkinsx"
+  ]
+}
