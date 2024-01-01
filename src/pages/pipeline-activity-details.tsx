@@ -1,7 +1,10 @@
 import { Renderer } from '@k8slens/extensions';
 import React from 'react';
+import pickBy from 'lodash.pickby';
 
 import { PipelineActivity, PipelineActivityStep, PipelineActivityStageStep } from '../objects/pipeline-activity';
+import { PipelineRun } from '../objects/pipeline-run';
+import { pipelineRunsStore } from '../objects/pipeline-run-store';
 
 const {
   Component: {
@@ -13,58 +16,82 @@ const {
 export interface PipelineActivityDetailsProps extends Renderer.Component.KubeObjectDetailsProps<PipelineActivity> {
 }
 
-export class PipelineActivityDetails extends React.Component<PipelineActivityDetailsProps> {
+type PipelineActivityState = {
+  runs: PipelineRun[];
+}
+
+export class PipelineActivityDetails extends React.Component<PipelineActivityDetailsProps, PipelineActivityState> {
+
+  readonly pipelineActivity: PipelineActivity;
+
+  constructor(props: PipelineActivityDetailsProps) {
+    super(props);
+    this.pipelineActivity = props.object;
+    this.state = {
+      runs: []
+    };
+  }
+
+  async componentDidMount() {
+    await pipelineRunsStore.loadAll();
+    // pipelineActivity.metadata.labelsからキーが'lighthouse.jenkins-x.io'のものを抽出
+    const labels = pickBy(this.pipelineActivity.metadata.labels, (value, key) => key.startsWith('lighthouse.jenkins-x.io/'));
+    this.setState({ runs: pipelineRunsStore.getByLabel(labels) });
+  }
+
   render() {
-    const { object: pipelineActivity } = this.props;
     return (
       <div className='PipelineActivity'>
         <DrawerTitle children='Jenkins X Pipeline' />
         <DrawerItem name='Context'>
-          { pipelineActivity.spec.context }
+          { this.pipelineActivity.spec.context }
         </DrawerItem>
         <DrawerItem name='Pipeline'>
-          { pipelineActivity.spec.pipeline }
+          { this.pipelineActivity.spec.pipeline }
         </DrawerItem>
         <DrawerItem name='Build Number'>
-          { pipelineActivity.spec.build }
+          { this.pipelineActivity.spec.build }
         </DrawerItem>
         <DrawerItem name='Started'>
-          { pipelineActivity.spec.startedTimestamp }
+          { this.pipelineActivity.spec.startedTimestamp }
         </DrawerItem>
         <DrawerItem name='Completed'>
-          { pipelineActivity.spec.completedTimestamp }
+          { this.pipelineActivity.spec.completedTimestamp }
         </DrawerItem>
         <DrawerItem name='Status'>
-          { pipelineActivity.spec.status }
+          { this.pipelineActivity.spec.status }
         </DrawerItem>
         <DrawerItem name='Message'>
-          { pipelineActivity.spec.message }
+          { this.pipelineActivity.spec.message }
         </DrawerItem>
 
         <DrawerTitle children='Git' />
         <DrawerItem name='URL'>
-          { pipelineActivity.spec.gitUrl }
+          { this.pipelineActivity.spec.gitUrl }
         </DrawerItem>
         <DrawerItem name='Owner'>
-          { pipelineActivity.spec.gitOwner }
+          { this.pipelineActivity.spec.gitOwner }
         </DrawerItem>
         <DrawerItem name='Repository'>
-          { pipelineActivity.spec.gitRepository }
+          { this.pipelineActivity.spec.gitRepository }
         </DrawerItem>
         <DrawerItem name='Branch'>
-          { pipelineActivity.spec.gitBranch }
+          { this.pipelineActivity.spec.gitBranch }
         </DrawerItem>
         <DrawerItem name='LastCommitSHA'>
-          { pipelineActivity.spec.lastCommitSHA }
+          { this.pipelineActivity.spec.lastCommitSHA }
         </DrawerItem>
         <DrawerItem name='BaseSHA'>
-          { pipelineActivity.spec.baseSHA }
+          { this.pipelineActivity.spec.baseSHA }
         </DrawerItem>
 
         <DrawerTitle children='Steps' />
         {
-          pipelineActivity.spec.steps.map(this.renderStep, this)
+          this.pipelineActivity.spec.steps.map(this.renderStep, this)
         }
+
+        <DrawerTitle children='Tekton Pipeline' />
+        { this.renderTest() }
       </div>
     )
   }
@@ -73,25 +100,25 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
     switch (step.kind.toLowerCase()) {
       case 'preview':
         return (
-          <React.Fragment>
+          <>
             <DrawerItem name={`${index + 1}: Preview`}>
               { step.preview.name }
             </DrawerItem>
             { /* TODO: render preview details */ }
-          </React.Fragment>
+          </>
         );
       case 'promote':
         return (
-          <React.Fragment>
+          <>
             <DrawerItem name={`${index + 1}: Promote`}>
               { step.promote.name }
             </DrawerItem>
             { /* TODO: render promote details */ }
-          </React.Fragment>
+          </>
         );
       case 'stage':
         return (
-          <React.Fragment>
+          <>
             <DrawerItem name={`${index + 1}: Stage`}>
               { step.stage.name }
             </DrawerItem>
@@ -109,7 +136,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
                 step.stage.steps.map(this.renderStageStep, this)
               }
             </div>
-          </React.Fragment>
+          </>
         );
       default:
         return (
@@ -120,7 +147,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
 
   private renderStageStep(step: PipelineActivityStageStep, index: number): React.JSX.Element {
     return (
-      <React.Fragment>
+      <>
         <DrawerItem name={`${index + 1}: Step`}>
           { step.name }
         </DrawerItem>
@@ -135,7 +162,24 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
             { step.status }
           </DrawerItem>
         </div>
-      </React.Fragment>
+      </>
+    );
+  }
+
+  private renderTest(): React.JSX.Element {
+    return (
+      <>
+        { this.state.runs.map((run) => (
+          <React.Fragment key={run.metadata.uid}>
+            <DrawerItem name='Name'>
+              { run.metadata.name }
+            </DrawerItem>
+            <DrawerItem name='Namespace'>
+              { run.metadata.namespace }
+            </DrawerItem>
+          </React.Fragment>
+        )) }
+      </>
     );
   }
 }
