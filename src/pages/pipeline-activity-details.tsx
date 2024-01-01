@@ -1,5 +1,6 @@
 import { Renderer } from '@k8slens/extensions';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import pickBy from 'lodash.pickby';
 
 import { PipelineActivity, PipelineActivityStep, PipelineActivityStageStep } from '../objects/pipeline-activity';
@@ -33,7 +34,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
   }
 
   async componentDidMount() {
-    await pipelineRunsStore.loadAll();
+    await pipelineRunsStore.loadAll({ namespaces: [this.pipelineActivity.metadata.namespace] });
     // pipelineActivity.metadata.labelsからキーが'lighthouse.jenkins-x.io'のものを抽出
     const labels = pickBy(this.pipelineActivity.metadata.labels, (value, key) => key.startsWith('lighthouse.jenkins-x.io/'));
     this.setState({ runs: pipelineRunsStore.getByLabel(labels) });
@@ -90,8 +91,8 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
           this.pipelineActivity.spec.steps.map(this.renderStep, this)
         }
 
-        <DrawerTitle children='Tekton Pipeline' />
-        { this.renderTest() }
+        <DrawerTitle children='Tekton PipelineRun' />
+        { this.renderPipelineRun() }
       </div>
     )
   }
@@ -166,18 +167,18 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
     );
   }
 
-  private renderTest(): React.JSX.Element {
+  private renderPipelineRun(): React.JSX.Element {
     return (
       <>
         { this.state.runs.map((run) => (
-          <React.Fragment key={run.metadata.uid}>
-            <DrawerItem name='Name'>
+          <DrawerItem
+            key={run.metadata.uid}
+            name={run.kind}>
+            <Link
+              to={Renderer.Navigation.getDetailsUrl(run.selfLink)}>
               { run.metadata.name }
-            </DrawerItem>
-            <DrawerItem name='Namespace'>
-              { run.metadata.namespace }
-            </DrawerItem>
-          </React.Fragment>
+            </Link>
+          </DrawerItem>
         )) }
       </>
     );
