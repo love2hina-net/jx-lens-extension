@@ -34,7 +34,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
   }
 
   async componentDidMount() {
-    await pipelineRunsStore.loadAll({ namespaces: [this.pipelineActivity.metadata.namespace] });
+    await pipelineRunsStore.loadAll({ namespaces: [this.pipelineActivity.metadata.namespace ?? ''] });
     // pipelineActivity.metadata.labelsからキーが'lighthouse.jenkins-x.io'のものを抽出
     const labels = pickBy(this.pipelineActivity.metadata.labels, (value, key) => key.startsWith('lighthouse.jenkins-x.io/'));
     this.setState({ runs: pipelineRunsStore.getByLabel(labels) });
@@ -88,7 +88,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
 
         <DrawerTitle children='Steps' />
         {
-          this.pipelineActivity.spec.steps.map(this.renderStep, this)
+          this.pipelineActivity.spec.steps?.map(this.renderStep, this)
         }
 
         <DrawerTitle children='Tekton PipelineRun' />
@@ -103,7 +103,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
         return (
           <>
             <DrawerItem name={`${index + 1}: Preview`}>
-              { step.preview.name }
+              { step.preview?.name ?? 'Unknown' }
             </DrawerItem>
             { /* TODO: render preview details */ }
           </>
@@ -112,7 +112,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
         return (
           <>
             <DrawerItem name={`${index + 1}: Promote`}>
-              { step.promote.name }
+              { step.promote?.name ?? 'Unknown' }
             </DrawerItem>
             { /* TODO: render promote details */ }
           </>
@@ -121,20 +121,20 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
         return (
           <>
             <DrawerItem name={`${index + 1}: Stage`}>
-              { step.stage.name }
+              { step.stage?.name ?? 'Unknown' }
             </DrawerItem>
             <div style={{ paddingLeft: '2em' }}>
               <DrawerItem name='Started'>
-                { step.stage.startedTimestamp }
+                { step.stage?.startedTimestamp }
               </DrawerItem>
               <DrawerItem name='Completed'>
-                { step.stage.completedTimestamp }
+                { step.stage?.completedTimestamp }
               </DrawerItem>
               <DrawerItem name='Status'>
-                { step.stage.status }
+                { step.stage?.status }
               </DrawerItem>
               {
-                step.stage.steps.map(this.renderStageStep, this)
+                step.stage?.steps?.map(this.renderStageStep, this)
               }
             </div>
           </>

@@ -13,7 +13,7 @@ export default class JxExtension extends Renderer.LensExtension {
     {
       id: 'jx-pipelines',
       components: {
-        Page: () => <PipelineActivityPage extension={this} />
+        Page: () => <PipelineActivityPage />
       }
     }
   ]
@@ -37,6 +37,7 @@ export default class JxExtension extends Renderer.LensExtension {
     }
   ]
 
+  // @ts-ignore: "KubeObjectDetailRegistration" uses unknown type in Generics.
   kubeObjectDetailItems = [
     {
       kind: PipelineActivity.kind,

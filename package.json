@@ -17,20 +17,19 @@
   "main": "dist/main.js",
   "renderer": "dist/renderer.js",
   "scripts": {
-    "start": "webpack --watch",
-    "build": "npm run clean && webpack --config webpack.config.prod.js",
-    "dev": "npm run clean && webpack --config webpack.config.dev.js",
+    "build": "npm run clean && npx webpack --config webpack.config.prod.js",
+    "dev": "npm run clean && npx webpack --config webpack.config.dev.js",
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@types/lodash.pickby": "^4.6.9",
-    "@types/react-router-dom": "^5.3.3",
     "lodash.pickby": "^4.6.0"
   },
   "devDependencies": {
     "@k8slens/extensions": "^6.5.2",
     "@types/node": "^20.10.4",
     "@types/react": "^16.9.35",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/lodash.pickby": "^4.6.9",
     "rimraf": "^5.0.5",
     "ts-loader": "^8.0.4",
     "typescript": "^5.3.3",
@@ -43,6 +42,9 @@
       "dist"
     ]
   },
+  "files": [
+    "dist/**/*"
+  ],
   "keywords": [
     "k8slens",
     "lens",

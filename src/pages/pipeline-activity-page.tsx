@@ -12,7 +12,7 @@ enum sortBy {
   started = 'started'
 }
 
-export class PipelineActivityPage extends React.Component<{ extension: Renderer.LensExtension }> {
+export class PipelineActivityPage extends React.Component {
   render() {
     return (
       <Renderer.Component.TabLayout>

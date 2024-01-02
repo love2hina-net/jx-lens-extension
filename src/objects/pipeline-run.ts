@@ -1,6 +1,8 @@
 import { Renderer } from '@k8slens/extensions';
 
-export class PipelineTaskRun {
+type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
+
+export type PipelineTaskRun = {
   pipelineTaskName: string;
   status: {
     podName: string;
@@ -11,19 +13,14 @@ export class PipelineTaskRun {
   };
 }
 
-export class PipelineRun extends Renderer.K8sApi.KubeObject {
-  static kind = 'PipelineRun';
-  static namespaced = true;
-  static apiBase = '/apis/tekton.dev/v1beta1/pipelineruns';
-
-  apiVersion: string;
-  kind: string;
-  // default metadata
-  // metadata: {};
-  status: {
-    taskRuns: {
-      [name: string]: PipelineTaskRun;
-    };
+export type PipelineRunStatus = {
+  taskRuns?: {
+    [name: string]: PipelineTaskRun;
   };
-  spec: {};
+};
+
+export class PipelineRun extends Renderer.K8sApi.KubeObject<NamespaceScopedMetadata, PipelineRunStatus, {}> {
+  static readonly kind = 'PipelineRun';
+  static readonly namespaced = true;
+  static readonly apiBase = '/apis/tekton.dev/v1beta1/pipelineruns';
 }

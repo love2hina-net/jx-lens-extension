@@ -1,113 +1,116 @@
 import { Renderer } from '@k8slens/extensions';
 
-export class PipelineActivityStageStep {
-  completedTimestamp: string;
-  description: string;
+type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
+
+export type PipelineActivityStageStep = {
+  completedTimestamp?: string;
+  description?: string;
   name: string;
-  startedTimestamp: string;
-  status: string;
+  startedTimestamp?: string;
+  status?: string;
 }
 
-export class PipelineActivityStep {
+export type PipelineActivityStep = {
   kind: string;
-  preview: {
-    applicationURL: string;
-    completedTimestamp: string;
-    description: string;
-    environment: string;
+  preview?: {
+    applicationURL?: string;
+    completedTimestamp?: string;
+    description?: string;
+    environment?: string;
     name: string;
-    pullRequestURL: string;
-    startedTimestamp: string;
-    status: string;
+    pullRequestURL?: string;
+    startedTimestamp?: string;
+    status?: string;
   };
-  promote: {
-    applicationURL: string;
-    completedTimestamp: string;
-    description: string;
-    environment: string;
+  promote?: {
+    applicationURL?: string;
+    completedTimestamp?: string;
+    description?: string;
+    environment?: string;
     name: string;
-    pullRequest: {
-      completedTimestamp: string;
-      description: string;
-      mergeCommitSHA: string;
+    pullRequest?: {
+      completedTimestamp?: string;
+      description?: string;
+      mergeCommitSHA?: string;
       name: string;
-      pullRequestURL: string;
-      startedTimestamp: string;
-      status: string;
+      pullRequestURL?: string;
+      startedTimestamp?: string;
+      status?: string;
     };
-    startedTimestamp: string;
-    status: string;
-    update: {
-      completedTimestamp: string;
-      description: string;
+    startedTimestamp?: string;
+    status?: string;
+    update?: {
+      completedTimestamp?: string;
+      description?: string;
       name: string;
-      startedTimestamp: string;
-      status: string;
-      statuses: {
-        status: string;
-        url: string;
+      startedTimestamp?: string;
+      status?: string;
+      statuses?: {
+        status?: string;
+        url?: string;
       }[];
     };
   };
-  stage: {
-    completedTimestamp: string;
-    description: string;
+  stage?: {
+    completedTimestamp?: string;
+    description?: string;
     name: string;
-    startedTimestamp: string;
-    status: string;
-    steps: PipelineActivityStageStep[];
+    startedTimestamp?: string;
+    status?: string;
+    steps?: PipelineActivityStageStep[];
   };
 }
 
-export class PipelineActivity extends Renderer.K8sApi.KubeObject {
-  static kind = 'PipelineActivity';
-  static namespaced = true;
-  static apiBase = '/apis/jenkins.io/v1/pipelineactivities';
-
-  apiVersion: string;
-  kind: string;
-  // default metadata
-  // metadata: {};
-  spec: {
-    attachments: {
-      name: string;
-      urls: string[];
+export type PipelineActivitySpec = {
+  attachments?: {
+    name?: string;
+    urls?: string[];
+  }[];
+  author?: string;
+  authorAvatarURL?: string;
+  authorURL?: string;
+  baseSHA?: string;
+  batchPipelineActivity?: {
+    batchBranchName?: string;
+    batchBuildNumber?: string;
+    pullRequestInfo?: {
+      lastBuildNumberForCommit?: string;
+      lastBuildSHA?: string;
+      pullRequestNumber?: string;
     }[];
-    author: string;
-    authorAvatarURL: string;
-    authorURL: string;
-    baseSHA: string;
-    batchPipelineActivity: {
-      batchBranchName: string;
-      batchBuildNumber: string;
-      pullRequestInfo: {
-        lastBuildNumberForCommit: string;
-        lastBuildSHA: string;
-        pullRequestNumber: string;
-      }[];
-    };
-    build: string;
-    buildLogsURL: string;
-    buildUrl: string;
-    completedTimestamp: string;
-    context: string;
-    gitBranch: string;
-    gitOwner: string;
-    gitRepository: string;
-    gitUrl: string;
-    lastCommitMessage: string;
-    lastCommitSHA: string;
-    lastCommitURL: string;
-    pipeline: string;
-    pullTitle: string;
-    releaseNotesURL: string;
-    startedTimestamp: string;
-    status: string;
-    message: string;
-    steps: PipelineActivityStep[];
-    version: string;
   };
-  status: {
-    version: string;
-  };
+  build?: string;
+  buildLogsURL?: string;
+  buildUrl?: string;
+  completedTimestamp?: string;
+  context?: string;
+  gitBranch?: string;
+  gitOwner?: string;
+  gitRepository?: string;
+  gitUrl?: string;
+  lastCommitMessage?: string;
+  lastCommitSHA?: string;
+  lastCommitURL?: string;
+  pipeline?: string;
+  pullTitle?: string;
+  releaseNotesURL?: string;
+  startedTimestamp?: string;
+  status?: string;
+  message?: string;
+  steps?: PipelineActivityStep[];
+  version?: string;
+}
+
+export type PipelineActivityStatus = {
+  version?: string;
+}
+
+export class PipelineActivity extends Renderer.K8sApi.KubeObject<
+  NamespaceScopedMetadata,
+  PipelineActivityStatus,
+  PipelineActivitySpec
+> {
+  static readonly kind = 'PipelineActivity';
+  static readonly namespaced = true;
+  static readonly apiBase = '/apis/jenkins.io/v1/pipelineactivities';
 }
