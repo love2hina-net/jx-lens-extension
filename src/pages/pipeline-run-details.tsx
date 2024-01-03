@@ -54,9 +54,9 @@ export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps,
 
       for (const [name, taskRun] of Object.entries(this.pipelineRun.status?.taskRuns ?? {})) {
         const steps: { [name: string]: Renderer.K8sApi.Pod | undefined } = {};
+        const pod = podsStore.getByName(taskRun.status.podName, namespace);
 
         for (const step of taskRun.status.steps) {
-          const pod = podsStore.getByName(step.container, namespace);
           steps[step.name] = pod;
         }
         newState.taskRuns[name] = { steps };
