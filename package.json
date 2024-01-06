@@ -2,7 +2,7 @@
   "type": "commonjs",
   "private": true,
   "name": "@love2hina/jx-lens-extension",
-  "version": "0.0.1-alpha1",
+  "version": "0.0.1-alpha2",
   "description": "Lens extension for Jenkins X",
   "author": "webmaster@love2hina.net",
   "repository": {
@@ -21,11 +21,9 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "lodash.pickby": "^4.6.0"
   },
   "devDependencies": {
     "@k8slens/extensions": "^6.5.2",
-    "@types/lodash.pickby": "^4.6.9",
     "@types/node": "^20.10.4",
     "@types/react": "^16.9.35",
     "@types/react-router-dom": "^5.3.3",

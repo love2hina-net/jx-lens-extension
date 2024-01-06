@@ -1,11 +1,7 @@
 import { Renderer } from '@k8slens/extensions';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import pickBy from 'lodash.pickby';
 
 import { PipelineActivity, PipelineActivityStep, PipelineActivityStageStep } from '../objects/pipeline-activity';
-import { PipelineRun } from '../objects/pipeline-run';
-import { pipelineRunsStore } from '../objects/pipeline-run-store';
 
 const {
   Component: {
@@ -14,85 +10,59 @@ const {
   }
 } = Renderer;
 
-export interface PipelineActivityDetailsProps extends Renderer.Component.KubeObjectDetailsProps<PipelineActivity> {
-}
+export type PipelineActivityDetailsProps = Renderer.Component.KubeObjectDetailsProps<PipelineActivity>;
 
-type PipelineActivityState = {
-  runs: PipelineRun[];
-}
-
-export class PipelineActivityDetails extends React.Component<PipelineActivityDetailsProps, PipelineActivityState> {
-
-  readonly pipelineActivity: PipelineActivity;
-
-  constructor(props: PipelineActivityDetailsProps) {
-    super(props);
-    this.pipelineActivity = props.object;
-    this.state = {
-      runs: []
-    };
-  }
-
-  async componentDidMount() {
-    await pipelineRunsStore.loadAll({ namespaces: [this.pipelineActivity.metadata.namespace ?? ''] });
-    // pipelineActivity.metadata.labelsからキーが'lighthouse.jenkins-x.io'のものを抽出
-    const labels = pickBy(this.pipelineActivity.metadata.labels, (value, key) => key.startsWith('lighthouse.jenkins-x.io/'));
-    this.setState({ runs: pipelineRunsStore.getByLabel(labels) });
-  }
-
+export class PipelineActivityDetails extends React.Component<PipelineActivityDetailsProps> {
   render() {
     return (
       <div className='PipelineActivity'>
         <DrawerTitle children='Jenkins X Pipeline' />
         <DrawerItem name='Context'>
-          { this.pipelineActivity.spec.context }
+          { this.props.object.spec.context }
         </DrawerItem>
         <DrawerItem name='Pipeline'>
-          { this.pipelineActivity.spec.pipeline }
+          { this.props.object.spec.pipeline }
         </DrawerItem>
         <DrawerItem name='Build Number'>
-          { this.pipelineActivity.spec.build }
+          { this.props.object.spec.build }
         </DrawerItem>
         <DrawerItem name='Started'>
-          { this.pipelineActivity.spec.startedTimestamp }
+          { this.props.object.spec.startedTimestamp }
         </DrawerItem>
         <DrawerItem name='Completed'>
-          { this.pipelineActivity.spec.completedTimestamp }
+          { this.props.object.spec.completedTimestamp }
         </DrawerItem>
         <DrawerItem name='Status'>
-          { this.pipelineActivity.spec.status }
+          { this.props.object.spec.status }
         </DrawerItem>
         <DrawerItem name='Message'>
-          { this.pipelineActivity.spec.message }
+          { this.props.object.spec.message }
         </DrawerItem>
 
         <DrawerTitle children='Git' />
         <DrawerItem name='URL'>
-          { this.pipelineActivity.spec.gitUrl }
+          { this.props.object.spec.gitUrl }
         </DrawerItem>
         <DrawerItem name='Owner'>
-          { this.pipelineActivity.spec.gitOwner }
+          { this.props.object.spec.gitOwner }
         </DrawerItem>
         <DrawerItem name='Repository'>
-          { this.pipelineActivity.spec.gitRepository }
+          { this.props.object.spec.gitRepository }
         </DrawerItem>
         <DrawerItem name='Branch'>
-          { this.pipelineActivity.spec.gitBranch }
+          { this.props.object.spec.gitBranch }
         </DrawerItem>
         <DrawerItem name='LastCommitSHA'>
-          { this.pipelineActivity.spec.lastCommitSHA }
+          { this.props.object.spec.lastCommitSHA }
         </DrawerItem>
         <DrawerItem name='BaseSHA'>
-          { this.pipelineActivity.spec.baseSHA }
+          { this.props.object.spec.baseSHA }
         </DrawerItem>
 
         <DrawerTitle children='Steps' />
         {
-          this.pipelineActivity.spec.steps?.map(this.renderStep, this)
+          this.props.object.spec.steps?.map(this.renderStep, this)
         }
-
-        <DrawerTitle children='Tekton PipelineRun' />
-        { this.renderPipelineRun() }
       </div>
     )
   }
@@ -163,23 +133,6 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
             { step.status }
           </DrawerItem>
         </div>
-      </>
-    );
-  }
-
-  private renderPipelineRun(): React.JSX.Element {
-    return (
-      <>
-        { this.state.runs.map((run) => (
-          <DrawerItem
-            key={run.metadata.uid}
-            name={run.kind}>
-            <Link
-              to={Renderer.Navigation.getDetailsUrl(run.selfLink)}>
-              { run.metadata.name }
-            </Link>
-          </DrawerItem>
-        )) }
       </>
     );
   }

@@ -7,6 +7,7 @@ import { PipelineActivityPage } from './src/pages/pipeline-activity-page';
 import { PipelineActivityDetails, PipelineActivityDetailsProps } from './src/pages/pipeline-activity-details';
 import { PipelineRun } from './src/objects/pipeline-run';
 import { PipelineRunDetails, PipelineRunDetailsProps } from './src/pages/pipeline-run-details';
+import { JxRelationsDetails, JxRelationsDetailsProps } from './src/pages/jx-relations-details';
 
 export default class JxExtension extends Renderer.LensExtension {
   clusterPages = [
@@ -52,10 +53,16 @@ export default class JxExtension extends Renderer.LensExtension {
       components: {
         Details: (props: PipelineRunDetailsProps) => <PipelineRunDetails {...props} />
       }
-    }
+    },
+    ...JxRelationsDetails.JX_K8S_KIND.map((i) => {
+      return {
+        kind: i.kind,
+        apiVersions: i.apiVersions,
+        components: {
+          Details: (props: JxRelationsDetailsProps) => <JxRelationsDetails {...props} />
+        },
+        priority: -100
+      }
+    })
   ]
-
-  async onActivate() {
-    // console.log('hello world')
-  }
 }

@@ -8,18 +8,12 @@ const {
     Button,
     DrawerItem,
     DrawerTitle,
-    logTabStore,
-    notificationsStore,
-  },
-  K8sApi: {
-    podsApi
   }
 } = Renderer;
 
-export interface PipelineRunDetailsProps extends Renderer.Component.KubeObjectDetailsProps<PipelineRun> {
-}
+export type PipelineRunDetailsProps = Renderer.Component.KubeObjectDetailsProps<PipelineRun>;
 
-type PipelineRunState = {
+type PipelineRunDetailsState = {
   taskRuns: {
     [name: string]: {
       steps: {
@@ -29,30 +23,26 @@ type PipelineRunState = {
   }
 }
 
-export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps, PipelineRunState> {
-
-  readonly pipelineRun: PipelineRun;
-
+export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps, PipelineRunDetailsState> {
   constructor(props: PipelineRunDetailsProps) {
     super(props);
-    this.pipelineRun = props.object;
     this.state = {
       taskRuns: {}
     };
   }
 
   async componentDidMount() {
-    const newState: PipelineRunState = {
+    const newState: PipelineRunDetailsState = {
       taskRuns: {}
     };
-    const namespace = this.pipelineRun.metadata.namespace ?? '';
+    const namespace = this.props.object.metadata.namespace ?? '';
 
     // Podをロードする
-    const podsStore = Renderer.K8sApi.apiManager.getStore(podsApi);
+    const podsStore = Renderer.K8sApi.apiManager.getStore(Renderer.K8sApi.podsApi);
     if (podsStore) {
       await podsStore.loadAll({ namespaces: [namespace] });
 
-      for (const [name, taskRun] of Object.entries(this.pipelineRun.status?.taskRuns ?? {})) {
+      for (const [name, taskRun] of Object.entries(this.props.object.status?.taskRuns ?? {})) {
         const steps: { [name: string]: Renderer.K8sApi.Pod | undefined } = {};
         const pod = podsStore.getByName(taskRun.status.podName, namespace);
 
@@ -69,7 +59,7 @@ export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps,
     return (
       <div className='PipelineRun'>
         <DrawerTitle children='Tekton Pipeline' />
-        { Object.entries(this.pipelineRun.status?.taskRuns ?? {}).map(this.renderTaskRun, this) }
+        { Object.entries(this.props.object.status?.taskRuns ?? {}).map(this.renderTaskRun, this) }
       </div>
     );
   }
@@ -115,13 +105,13 @@ export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps,
 
     if (pod && selectedContainer) {
       Renderer.Navigation.hideDetails();
-      logTabStore.createPodTab({
+      Renderer.Component.logTabStore.createPodTab({
         selectedPod: pod,
         selectedContainer: selectedContainer,
       });
     }
     else {
-      notificationsStore.add({
+      Renderer.Component.notificationsStore.add({
         message: `Container ${container} was not found, probably the pod was already expired.`,
         status: Renderer.Component.NotificationStatus.ERROR
       });
