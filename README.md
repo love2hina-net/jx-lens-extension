@@ -10,13 +10,20 @@ This project was released under the Apache-2.0 License.
 * Jenkins X 3.10.126
 
 ## 開発
+### ビルド
+```pwsh
+& npm run dev
+```
+
 ### インストール
 ```pwsh
 Set-Location -Path ~/.k8slens/extensions
 New-Item -Name 'jx-lens-extension' -Value '(git clone directory)' -ItemType SymbolicLink
 ```
 
+## リリース
 ### ビルド
 ```pwsh
-& npm run dev
+& npm run build
+& npm pack
 ```
