@@ -6,7 +6,7 @@ import {pipelineActivitiesStore} from "../objects/pipeline-activity-store";
 import {PipelineActivity} from "../objects/pipeline-activity"
 import kebabCase from "lodash/kebabCase";
 import {ExternalLink} from "./external-link";
-import {breakpointsStore} from "../objects/breakpoint-store";
+import {lighthouseBreakpointsStore} from "../objects/lighthouse-breakpoint-store";
 
 const {
   Component: {
@@ -55,7 +55,7 @@ export class ActivityPage extends React.Component {
             [sortBy.status]: (activity: PipelineActivity) => activity.spec.status,
             [sortBy.age]: (activity: PipelineActivity) => activity.createdTime,
           }}
-          dependentStores={[breakpointsStore]}
+          dependentStores={[lighthouseBreakpointsStore]}
           searchFilters={[
             (activity: PipelineActivity) => activity.getSearchFields()
           ]}

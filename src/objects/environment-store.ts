@@ -1,14 +1,17 @@
-import { Renderer } from "@k8slens/extensions";
-import { Environment } from "./environment";
+import { Renderer } from '@k8slens/extensions';
 
-export class EnvironmentsApi extends Renderer.K8sApi.KubeApi<Environment> {
-}
+import { Environment } from './environment';
+
+export class EnvironmentsApi extends Renderer.K8sApi.KubeApi<Environment> {}
+
 export const environmentsApi = new EnvironmentsApi({
-  objectConstructor: Environment
+  objectConstructor: Environment,
 });
 
 export class EnvironmentsStore extends Renderer.K8sApi.KubeObjectStore<Environment> {
-  api = environmentsApi
+  constructor() {
+    super(environmentsApi);
+  }
 }
 
 export const environmentsStore = new EnvironmentsStore();

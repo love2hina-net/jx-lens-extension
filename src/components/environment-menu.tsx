@@ -20,10 +20,10 @@
  */
 
 
-import React from "react";
-import {Common, Renderer} from "@k8slens/extensions";
-import {Environment} from "../environment";
-import {openExternalLink} from "./activity-menu";
+import React from 'react';
+import { Common, Renderer } from '@k8slens/extensions';
+import { Environment } from '../objects/environment';
+import { openExternalLink } from './activity-menu';
 
 const {
   Component: {
@@ -48,14 +48,14 @@ export class EnvironmentMenu extends React.Component<EnvironmentMenuProps> {
 
     let appURL = object.sourceUrl;
     if (!appURL) {
-      return "";
+      return '';
     }
 
     return (
       <MenuItem onClick={Util.prevDefault(() => openExternalLink(appURL))}
-                title="View the environment source repository">
-        <Icon material="visibility" interactive={toolbar}/>
-        <span className="title">View Repository</span>
+                title='View the environment source repository'>
+        <Icon material='visibility' interactive={toolbar}/>
+        <span className='title'>View Repository</span>
       </MenuItem>
     );
   }

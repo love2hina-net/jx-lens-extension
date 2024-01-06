@@ -1,5 +1,6 @@
 import { Renderer } from '@k8slens/extensions';
-import moment from 'moment';
+
+import { createdTime, dateFromNow } from '../common';
 
 type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
 
@@ -97,8 +98,7 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
   static readonly apiBase = '/apis/jenkins.io/v1/pipelineactivities';
 
   get buildName(): string {
-    const build = this.spec.build;
-    const context = this.spec.context;
+    const { build, context } = this.spec;
 
     return (build && context)?
       `#${build} ${context}` : build || context || '';
@@ -117,12 +117,4 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
   get createdTime(): any {
     return createdTime(this.metadata.creationTimestamp);
   }  
-}
-
-function createdTime(timestamp: string | undefined) {
-  return (timestamp)? moment(timestamp) : null;
-}
-
-function dateFromNow(timestamp: string | undefined): string {
-  return (timestamp)? moment(timestamp).fromNow(false) : '';
 }

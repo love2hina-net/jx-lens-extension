@@ -36,8 +36,9 @@ export class JxRelationsDetails extends React.Component<JxRelationsDetailsProps,
   }
 
   async componentDidMount() {
-    const namespace = this.props.object.getNs();
-    const jxId = this.props.object.getLabels().find((label) => label.startsWith('lighthouse.jenkins-x.io/id='));
+    const { object } = this.props;
+    const namespace = object.getNs();
+    const jxId = object.getLabels().find((label) => label.startsWith('lighthouse.jenkins-x.io/id='));
 
     if (namespace && jxId) {
       const newState: JxRelationsDetailsState = {
@@ -57,7 +58,7 @@ export class JxRelationsDetails extends React.Component<JxRelationsDetailsProps,
             return [];
           }
         });
-      }))).flat().filter((obj) => obj.getId() != this.props.object.getId());
+      }))).flat().filter((obj) => obj.getId() != object.getId());
 
       this.setState(newState);
     }

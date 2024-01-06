@@ -1,42 +1,36 @@
-import {Renderer} from "@k8slens/extensions";
-import {dateFromNow} from "./activity";
+import { Renderer } from '@k8slens/extensions';
 
-export class Environment extends Renderer.K8sApi.KubeObject {
-  static kind = "Environment"
-  static namespaced = true
-  static apiBase = "/apis/jenkins.io/v1/environments"
+import { dateFromNow } from '../common';
 
-  kind: string;
-  apiVersion: string;
-  metadata: {
-    name: string;
-    namespace: string;
-    selfLink: string;
-    uid: string;
-    resourceVersion: string;
-    creationTimestamp: string;
-    labels: {
-      [key: string]: string;
-    };
-    annotations: {
-      [key: string]: string;
-    };
-  }
-  spec: {
-    kind: string;
-    label: string;
-    namespace: string;
-    order: number;
-    promotionStrategy: string;
-    remoteCluster: boolean;
-    source: EnvironmentSource;
-  }
+type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
+
+export type EnvironmentSpec = {
+  kind?: string;
+  label?: string;
+  namespace?: string;
+  order?: number;
+  promotionStrategy?: string;
+  remoteCluster?: boolean;
+  source?: {
+    ref?: string;
+    url?: string;
+  };
+};
+
+export type EnvironmentStatus = {
+}
+
+export class Environment extends Renderer.K8sApi.KubeObject<
+  NamespaceScopedMetadata,
+  EnvironmentStatus,
+  EnvironmentSpec
+> {
+  static readonly kind = 'Environment'
+  static readonly namespaced = true
+  static readonly apiBase = '/apis/jenkins.io/v1/environments'
 
   get sourceUrl(): string {
-    if (!this.spec || !this.spec.source) {
-      return ""
-    }
-    return this.spec.source.url || "";
+    return this.spec.source?.url ?? '';
   }
 
   get createdAt(): string {
@@ -47,9 +41,3 @@ export class Environment extends Renderer.K8sApi.KubeObject {
     return this.createdTime(this.metadata.creationTimestamp);
   }
 }
-
-export class EnvironmentSource {
-  ref: string;
-  url: string;
-}
-

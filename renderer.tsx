@@ -1,19 +1,19 @@
 import { Renderer } from '@k8slens/extensions';
 import React from 'react';
 
-import {ActivityDetails, ActivityDetailsProps} from './src/components/activity-details';
-import {ActivityPage} from './src/components/activity-page';
-import {ActivityMenu, ActivityMenuProps} from './src/components/activity-menu';
-import {PreviewPage} from './src/components/preview-page';
-import {PreviewMenu, PreviewMenuProps} from './src/components/preview-menu';
-import {Preview} from './src/objects/preview';
-import {RepositoryPage} from './src/components/repository-page';
-import {Repository} from './src/objects/repository';
-import {RepositoryMenu, RepositoryMenuProps} from './src/components/repository-menu';
-import {Environment} from './src/objects/environment';
-import {EnvironmentMenu, EnvironmentMenuProps} from './src/components/environment-menu';
-import {EnvironmentPage} from './src/components/environment-page';
-import {BreakpointPage} from './src/components/breakpoint-page';
+import { ActivityDetails, ActivityDetailsProps } from './src/components/activity-details';
+import { ActivityPage } from './src/components/activity-page';
+import { ActivityMenu, ActivityMenuProps } from './src/components/activity-menu';
+import { PreviewPage } from './src/components/preview-page';
+import { PreviewMenu, PreviewMenuProps } from './src/components/preview-menu';
+import { Preview } from './src/objects/preview';
+import { RepositoryPage } from './src/components/repository-page';
+import { SourceRepository } from './src/objects/source-repository';
+import { RepositoryMenu, RepositoryMenuProps } from './src/components/repository-menu';
+import { Environment } from './src/objects/environment';
+import { EnvironmentMenu, EnvironmentMenuProps } from './src/components/environment-menu';
+import { EnvironmentPage } from './src/components/environment-page';
+import { BreakpointPage } from './src/components/lighthouse-breakpoint-page';
 
 import { NoneIcon, BuildIcon } from './src/icon'
 import { PipelineActivity } from './src/objects/pipeline-activity';
@@ -138,6 +138,7 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
     },
   ];
 
+  // @ts-ignore: 'KubeObjectMenuRegistration' uses unknown type in Generics.
   kubeObjectMenuItems = [
     {
       kind: Environment.kind,
@@ -161,7 +162,7 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       }
     },
     {
-      kind: Repository.kind,
+      kind: SourceRepository.kind,
       apiVersions: ['jenkins.io/v1'],
       components: {
         MenuItem: (props: RepositoryMenuProps) => <RepositoryMenu {...props} />

@@ -1,32 +1,47 @@
-import {Renderer} from "@k8slens/extensions";
-import {dateFromNow} from "./activity";
+import { Renderer } from '@k8slens/extensions';
 
-export class Preview extends Renderer.K8sApi.KubeObject {
-  static kind = "Preview"
-  static namespaced = true
-  static apiBase = "/apis/preview.jenkins.io/v1alpha1/previews"
+import { dateFromNow } from '../common';
 
-  kind: string;
-  apiVersion: string;
-  metadata: {
-    name: string;
-    namespace: string;
-    selfLink: string;
-    uid: string;
-    resourceVersion: string;
-    creationTimestamp: string;
-    labels: {
-      [key: string]: string;
+type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
+
+export type PreviewSpec = {
+  source?: {
+    url?: string;
+    cloneURL?: string;
+    ref?: string;
+    path?: string;
+  };
+  pullRequest?: {
+    number?: number;
+    owner?: string;
+    repository?: string;
+    url?: string;
+    title?: string;
+    description?: string;
+    user?: {
+      name?: string;
+      username?: string;
+      imageUrl?: string;
+      linkUrl?: string;
     };
-    annotations: {
-      [key: string]: string;
-    };
-  }
-  spec: {
-    source: PreviewSource;
-    pullRequest: PreviewPullRequest;
-    resources: PreviewResources;
-  }
+  };
+  resources?: {
+    name?: string;
+    url?: string;
+    namespace?: string;
+  };
+};
+
+export type PreviewStatus = {}
+
+export class Preview extends Renderer.K8sApi.KubeObject<
+  NamespaceScopedMetadata,
+  PreviewStatus,
+  PreviewSpec
+> {
+  static readonly kind = 'Preview'
+  static readonly namespaced = true
+  static readonly apiBase = '/apis/preview.jenkins.io/v1alpha1/previews'
 
   get createdAt(): string {
     return dateFromNow(this.metadata.creationTimestamp);
@@ -35,36 +50,4 @@ export class Preview extends Renderer.K8sApi.KubeObject {
   get createdTime(): any {
     return this.createdTime(this.metadata.creationTimestamp);
   }
-}
-
-
-export class PreviewResources {
-  name: string;
-  url: string;
-  namespace: string;
-}
-
-
-export class PreviewSource {
-  url: string;
-  cloneURL: string;
-  ref: string;
-  path: string;
-}
-
-export class PreviewPullRequest {
-  number: number;
-  owner: string;
-  repository: string;
-  url: string;
-  title: string;
-  description: string;
-  user: PreviewUser;
-}
-
-export class PreviewUser {
-  name: string;
-  username: string;
-  imageUrl: string;
-  linkUrl: string;
 }

@@ -14,54 +14,55 @@ export type PipelineActivityDetailsProps = Renderer.Component.KubeObjectDetailsP
 
 export class PipelineActivityDetails extends React.Component<PipelineActivityDetailsProps> {
   render() {
+    const { object: activity } = this.props;
     return (
       <div className='PipelineActivity'>
         <DrawerTitle children='Jenkins X Pipeline' />
         <DrawerItem name='Context'>
-          { this.props.object.spec.context }
+          { activity.spec.context }
         </DrawerItem>
         <DrawerItem name='Pipeline'>
-          { this.props.object.spec.pipeline }
+          { activity.spec.pipeline }
         </DrawerItem>
         <DrawerItem name='Build Number'>
-          { this.props.object.spec.build }
+          { activity.spec.build }
         </DrawerItem>
         <DrawerItem name='Started'>
-          { this.props.object.spec.startedTimestamp }
+          { activity.spec.startedTimestamp }
         </DrawerItem>
         <DrawerItem name='Completed'>
-          { this.props.object.spec.completedTimestamp }
+          { activity.spec.completedTimestamp }
         </DrawerItem>
         <DrawerItem name='Status'>
-          { this.props.object.spec.status }
+          { activity.spec.status }
         </DrawerItem>
         <DrawerItem name='Message'>
-          { this.props.object.spec.message }
+          { activity.spec.message }
         </DrawerItem>
 
         <DrawerTitle children='Git' />
         <DrawerItem name='URL'>
-          { this.props.object.spec.gitUrl }
+          { activity.spec.gitUrl }
         </DrawerItem>
         <DrawerItem name='Owner'>
-          { this.props.object.spec.gitOwner }
+          { activity.spec.gitOwner }
         </DrawerItem>
         <DrawerItem name='Repository'>
-          { this.props.object.spec.gitRepository }
+          { activity.spec.gitRepository }
         </DrawerItem>
         <DrawerItem name='Branch'>
-          { this.props.object.spec.gitBranch }
+          { activity.spec.gitBranch }
         </DrawerItem>
         <DrawerItem name='LastCommitSHA'>
-          { this.props.object.spec.lastCommitSHA }
+          { activity.spec.lastCommitSHA }
         </DrawerItem>
         <DrawerItem name='BaseSHA'>
-          { this.props.object.spec.baseSHA }
+          { activity.spec.baseSHA }
         </DrawerItem>
 
         <DrawerTitle children='Steps' />
         {
-          this.props.object.spec.steps?.map(this.renderStep, this)
+          activity.spec.steps?.map(this.renderStep, this)
         }
       </div>
     )

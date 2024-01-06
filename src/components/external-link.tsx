@@ -20,9 +20,9 @@
  */
 
 
-import React from "react";
-import {Renderer} from "@k8slens/extensions";
-import {openExternalLink} from "./activity-menu";
+import React from 'react';
+import {Renderer} from '@k8slens/extensions';
+import {openExternalLink} from './activity-menu';
 
 const {
   Navigation,
