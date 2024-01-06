@@ -1,7 +1,8 @@
-dist
-node_modules
+node_modules/
+dist/
 
-package-lock.json
+# npm packing files
+*.tgz
 
 # log file by lens when running tests using @jest-runner/electron
 lens.log
