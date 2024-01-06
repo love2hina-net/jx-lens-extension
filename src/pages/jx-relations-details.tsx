@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 const {
   Component: {
+    Button,
     DrawerItem,
     DrawerTitle,
   }
@@ -18,12 +19,13 @@ type JxRelationsDetailsState = {
 };
 
 export class JxRelationsDetails extends React.Component<JxRelationsDetailsProps, JxRelationsDetailsState> {
-
   public static readonly JX_K8S_KIND = [
     { apiVersions: ['jenkins.io/v1'], kind: 'PipelineActivity' },
     { apiVersions: ['lighthouse.jenkins.io/v1alpha1'], kind: 'LighthouseJob' },
     { apiVersions: ['tekton.dev/v1beta1'], kind: 'PipelineRun' },
     { apiVersions: ['tekton.dev/v1beta1'], kind: 'TaskRun' },
+    { apiVersions: ['batch/v1'], kind: 'Job' },
+    { apiVersions: ['v1'], kind: 'Pod' },
   ];
 
   constructor(props: JxRelationsDetailsProps) {
@@ -71,12 +73,55 @@ export class JxRelationsDetails extends React.Component<JxRelationsDetailsProps,
               key={obj.getId()}
               name={obj.kind}>
               <Link to={Renderer.Navigation.getDetailsUrl(obj.selfLink)}>
-                { obj.getName() }
+                { obj.getName() }&nbsp;
+                <this.LogButton object={obj} />
               </Link>
             </DrawerItem>
           ))
         }
       </div>
     );
+  }
+
+  private LogButton({ object }: { object: KubeObject }): React.JSX.Element | null {
+    if (object instanceof Renderer.K8sApi.Pod) {
+      // Pod
+      return (
+        <Button onClick={() => JxRelationsDetails.showPodLog(object)}>Log</Button>
+      );
+    }
+    else if (object instanceof Renderer.K8sApi.Job) {
+      // Job
+      return (
+        <Button onClick={() => JxRelationsDetails.showJobLog(object)}>Log</Button>
+      );
+    }
+
+    return null;
+  }
+
+  private static showPodLog(pod: Renderer.K8sApi.Pod) {
+    const firstContainer = pod.getContainers()[0];
+
+    if (firstContainer) {
+      Renderer.Navigation.hideDetails();
+      Renderer.Component.logTabStore.createPodTab({
+        selectedPod: pod,
+        selectedContainer: firstContainer,
+      });
+    }
+    else {
+      Renderer.Component.notificationsStore.add({
+        status: Renderer.Component.NotificationStatus.ERROR,
+        message: `Could not find container in pod ${pod.getName()}`,
+      });
+    }
+  }
+
+  private static showJobLog(job: Renderer.K8sApi.Job): void {
+    Renderer.Navigation.hideDetails();
+    Renderer.Component.logTabStore.createWorkloadTab({
+      workload: job,
+    });
   }
 }
