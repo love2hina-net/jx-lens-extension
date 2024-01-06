@@ -1,9 +1,13 @@
 import { Renderer } from '@k8slens/extensions';
 import React from 'react';
 
+import { PipelineActivity } from './src/objects/pipeline-activity';
+
+import { PipelineActivityPage } from './src/components/pipeline-activity-page';
+import { PipelineActivityDetails, PipelineActivityDetailsProps } from './src/components/pipeline-activity-details';
 import { ActivityDetails, ActivityDetailsProps } from './src/components/activity-details';
-import { ActivityPage } from './src/components/activity-page';
 import { ActivityMenu, ActivityMenuProps } from './src/components/activity-menu';
+
 import { PreviewPage } from './src/components/preview-page';
 import { PreviewMenu, PreviewMenuProps } from './src/components/preview-menu';
 import { Preview } from './src/objects/preview';
@@ -14,18 +18,16 @@ import { Environment } from './src/objects/environment';
 import { EnvironmentMenu, EnvironmentMenuProps } from './src/components/environment-menu';
 import { EnvironmentPage } from './src/components/environment-page';
 import { BreakpointPage } from './src/components/lighthouse-breakpoint-page';
-
-import { NoneIcon, BuildIcon } from './src/icon'
-import { PipelineActivity } from './src/objects/pipeline-activity';
-import { PipelineActivityPage } from './src/components/pipeline-activity-page';
-import { PipelineActivityDetails, PipelineActivityDetailsProps } from './src/components/pipeline-activity-details';
 import { PipelineRun } from './src/objects/pipeline-run';
 import { PipelineRunDetails, PipelineRunDetailsProps } from './src/components/pipeline-run-details';
 import { JxRelationsDetails, JxRelationsDetailsProps } from './src/components/jx-relations-details';
 
-export function JXIcon(props: Renderer.Component.IconProps) {
-  const JXLogo = require(`!!raw-loader!./jx.svg`).default;
+function NoneIcon(props: Renderer.Component.IconProps): React.ReactElement<any, any> | null {
+  return null;
+}
 
+function JXIcon(props: Renderer.Component.IconProps): React.ReactElement<any, any> | null {
+  const JXLogo = require(`!!raw-loader!./jx.svg`).default;
   return <Renderer.Component.Icon {...props} svg={JXLogo} tooltip='Jenkins X'/>
 }
 
@@ -48,13 +50,6 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       id: 'environments',
       components: {
         Page: () => <EnvironmentPage />,
-        MenuIcon: JXIcon,
-      }
-    },
-    {
-      id: 'pipelines',
-      components: {
-        Page: () => <ActivityPage />,
         MenuIcon: JXIcon,
       }
     },
@@ -84,8 +79,8 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
     },
     {
       parentId: 'jenkins-x',
-      id: 'jx-pipelines',
-      title: 'Pipelines(origin)',
+      id: 'jenkins-x/pipelines',
+      title: 'Pipelines',
       components: {
         Icon: NoneIcon
       },
@@ -105,15 +100,6 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       parentId: 'jenkins-x',
       target: {pageId: 'environments'},
       title: 'Environments',
-      components: {
-        Icon: NoneIcon,
-      }
-    },
-    {
-      id: 'jenkins-x/pipelines',
-      parentId: 'jenkins-x',
-      target: {pageId: 'pipelines'},
-      title: 'Pipelines',
       components: {
         Icon: NoneIcon,
       }
