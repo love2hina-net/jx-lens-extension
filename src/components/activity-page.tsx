@@ -2,11 +2,11 @@ import styles from "../../styles.module.scss";
 
 import {Renderer} from "@k8slens/extensions";
 import React from "react";
-import {activitiesStore} from "../activity-store";
-import {Activity} from "../activity"
+import {pipelineActivitiesStore} from "../objects/pipeline-activity-store";
+import {PipelineActivity} from "../objects/pipeline-activity"
 import kebabCase from "lodash/kebabCase";
 import {ExternalLink} from "./external-link";
-import {breakpointsStore} from "../breakpoint-store";
+import {breakpointsStore} from "../objects/breakpoint-store";
 
 const {
   Component: {
@@ -40,24 +40,24 @@ const ActivityStatusTypeAborted = "Aborted"
 // ActivityStatusTypeNotExecuted if the workflow was not executed
 const ActivityStatusTypeNotExecuted = "NotExecuted"
 
-export class ActivityPage extends React.Component<{ extension: Renderer.LensExtension }> {
+export class ActivityPage extends React.Component {
 
   render() {
     return (
       <TabLayout>
         <KubeObjectListLayout
           tableId="pipelineActivities"
-          className={styles.PipelineActivityList} store={activitiesStore}
+          className={styles.PipelineActivityList} store={pipelineActivitiesStore}
           sortingCallbacks={{
-            [sortBy.owner]: (activity: Activity) => activity.spec.gitOwner,
-            [sortBy.repository]: (activity: Activity) => activity.spec.gitRepository,
-            [sortBy.branch]: (activity: Activity) => activity.spec.gitBranch,
-            [sortBy.status]: (activity: Activity) => activity.spec.status,
-            [sortBy.age]: (activity: Activity) => activity.createdTime,
+            [sortBy.owner]: (activity: PipelineActivity) => activity.spec.gitOwner,
+            [sortBy.repository]: (activity: PipelineActivity) => activity.spec.gitRepository,
+            [sortBy.branch]: (activity: PipelineActivity) => activity.spec.gitBranch,
+            [sortBy.status]: (activity: PipelineActivity) => activity.spec.status,
+            [sortBy.age]: (activity: PipelineActivity) => activity.createdTime,
           }}
           dependentStores={[breakpointsStore]}
           searchFilters={[
-            (activity: Activity) => activity.getSearchFields()
+            (activity: PipelineActivity) => activity.getSearchFields()
           ]}
           renderHeaderTitle="Pipelines"
           renderTableHeader={[
@@ -69,7 +69,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
             {title: "Message", className: "message"},
             {title: "Age", className: "age", sortBy: sortBy.age},
           ]}
-          renderTableContents={(activity: Activity) => {
+          renderTableContents={(activity: PipelineActivity) => {
             return [
               activity.spec.gitOwner,
               activity.spec.gitRepository,
@@ -87,7 +87,7 @@ export class ActivityPage extends React.Component<{ extension: Renderer.LensExte
 }
 
 // renderLastStep returns the last step
-function renderStatus(pa: Activity) {
+function renderStatus(pa: PipelineActivity) {
   if (!pa || !pa.spec) {
     return "";
   }
@@ -99,7 +99,7 @@ function renderStatus(pa: Activity) {
 }
 
 // renderLastStep returns the last step
-function renderLastStep(pa: Activity) {
+function renderLastStep(pa: PipelineActivity) {
   if (!pa || !pa.spec) {
     return "";
   }
@@ -129,7 +129,7 @@ function renderLastStep(pa: Activity) {
 
   let promote = step.promote;
   if (promote) {
-    let prURL = "";
+    let prURL: string | undefined = "";
     let title = ""
     let pr = promote.pullRequest;
     if (pr) {
@@ -170,6 +170,6 @@ function renderLastStep(pa: Activity) {
     }
     return preview.name;
   }
-  return st.name;
+  return '';
 }
 

@@ -2,8 +2,8 @@ import styles from "../../styles.module.scss";
 
 import {Renderer} from "@k8slens/extensions";
 import React from "react";
-import {previewsStore} from "../preview-store";
-import {Preview} from "../preview"
+import {previewsStore} from "../objects/preview-store";
+import {Preview} from "../objects/preview"
 import {ExternalLink} from "./external-link";
 
 enum sortBy {
@@ -16,7 +16,7 @@ enum sortBy {
 }
 
 
-export class PreviewPage extends React.Component<{ extension: Renderer.LensExtension }> {
+export class PreviewPage extends React.Component {
 
   render() {
     return (

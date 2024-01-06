@@ -2,8 +2,8 @@ import styles from "../../styles.module.scss";
 
 import {Renderer} from "@k8slens/extensions";
 import React from "react";
-import {breakpointsStore} from "../breakpoint-store";
-import {Breakpoint} from "../breakpoint"
+import {breakpointsStore} from "../objects/breakpoint-store";
+import {Breakpoint} from "../objects/breakpoint"
 
 enum sortBy {
   repository = "repository",
@@ -14,7 +14,7 @@ enum sortBy {
 }
 
 
-export class BreakpointPage extends React.Component<{ extension: Renderer.LensExtension }> {
+export class BreakpointPage extends React.Component {
 
   render() {
     return (

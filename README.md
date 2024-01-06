@@ -2,49 +2,21 @@
 
 This extension improves the UX around working with pipelines and preview environments.
 
-## Install
+## License
+This project was released under the Apache-2.0 License.
 
-```sh
-mkdir -p ~/.k8slens/extensions
-git clone https://github.com/jenkins-x-plugins/jx-lens.git
-ln -s $(pwd)/jx-lens ~/.k8slens/extensions/jx-lens
+## 確認状況
+* OpenLens 6.5.2
+* Jenkins X 3.10.126
+
+## 開発
+### インストール
+```pwsh
+Set-Location -Path ~/.k8slens/extensions
+New-Item -Name 'jx-lens-extension' -Value '(git clone directory)' -ItemType SymbolicLink
 ```
 
-## Build
-
-To build the extension you can use `make` or run the `npm` commands manually:
-
-```sh
-cd jx-lens
-make build
+### ビルド
+```pwsh
+& npm run dev
 ```
-
-OR
-
-```sh
-cd jx-lens
-npm install
-npm run build
-```
- 
-### Incremental building
-
-If you want to watch for any source code changes and automatically rebuild the extension you can use:
-
-```sh
-npm start
-```
-       
-Once the extension has been rebuilt inside `Lens` you can click on the `View -> Reload` menu item (or `R' keypress) to reload to see the new changes.
-
-## Test
-
-Open Lens application and navigate to a cluster. You should see "Certificates" in a menu.
-
-## Uninstall
-
-```sh
-rm ~/.k8slens/extensions/jx-lens
-```
-
-Restart Lens application.

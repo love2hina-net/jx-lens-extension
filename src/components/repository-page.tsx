@@ -2,8 +2,8 @@ import styles from "../../styles.module.scss";
 
 import {Renderer} from "@k8slens/extensions";
 import React from "react";
-import {repositoriesStore} from "../repository-store";
-import {Repository} from "../repository"
+import {repositoriesStore} from "../objects/repository-store";
+import {Repository} from "../objects/repository"
 import escape from "lodash/escape";
 
 enum sortBy {
@@ -13,7 +13,7 @@ enum sortBy {
 }
 
 
-export class RepositoryPage extends React.Component<{ extension: Renderer.LensExtension }> {
+export class RepositoryPage extends React.Component {
 
   render() {
     return (

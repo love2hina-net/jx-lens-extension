@@ -2,8 +2,8 @@ import styles from "../../styles.module.scss";
 
 import {Renderer} from "@k8slens/extensions";
 import React from "react";
-import {environmentsStore} from "../environment-store";
-import {Environment} from "../environment"
+import {environmentsStore} from "../objects/environment-store";
+import {Environment} from "../objects/environment"
 
 enum sortBy {
   name = "name",
@@ -14,7 +14,7 @@ enum sortBy {
 }
 
 
-export class EnvironmentPage extends React.Component<{ extension: Renderer.LensExtension }> {
+export class EnvironmentPage extends React.Component {
 
   render() {
     return (
