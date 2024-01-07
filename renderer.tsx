@@ -5,7 +5,6 @@ import { PipelineActivity } from './src/objects/pipeline-activity';
 
 import { PipelineActivityPage } from './src/components/pipeline-activity-page';
 import { PipelineActivityDetails, PipelineActivityDetailsProps } from './src/components/pipeline-activity-details';
-import { ActivityDetails, ActivityDetailsProps } from './src/components/activity-details';
 import { PipelineActivityMenu, PipelineActivityMenuProps } from './src/components/pipeline-activity-menu';
 
 import { PreviewPage } from './src/components/preview-page';
@@ -158,13 +157,6 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
 
   // @ts-ignore: 'KubeObjectDetailRegistration' uses unknown type in Generics.
   kubeObjectDetailItems = [
-    {
-      kind: PipelineActivity.kind,
-      apiVersions: ['jenkins.io/v1'],
-      components: {
-        Details: (props: ActivityDetailsProps) => <ActivityDetails {...props} />
-      }
-    },
     {
       kind: PipelineActivity.kind,
       apiVersions: ['jenkins.io/v1'],

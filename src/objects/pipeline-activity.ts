@@ -131,6 +131,7 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
     return answer;
   }
 
+  // TODO: BUG: 1つのアクティビティに対して、複数のPodが存在する場合があるので、正しくない
   get podFromActivity(): Renderer.K8sApi.Pod | undefined {
     const store = Renderer.K8sApi.apiManager.getStore(Renderer.K8sApi.podsApi);
     if (!store) {

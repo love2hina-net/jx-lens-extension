@@ -14,18 +14,44 @@ export type PipelineActivityDetailsProps = Renderer.Component.KubeObjectDetailsP
 
 export class PipelineActivityDetails extends React.Component<PipelineActivityDetailsProps> {
   render() {
+    /*
+      <div>
+        <nav>
+          <Renderer.Component..
+          <RecursiveTreeView data={dataTree}/>
+        </nav>
+        <section id='application'>
+          <h1>Application</h1>
+        </section>
+      </div>
+     */
+
+    // TODO a tree would be great! :)
+
+    /*
+      // TODO: BUG: 1つのアクティビティで複数のPodがあるので、正しくない
+      <div className='Activity'>
+        {
+          pod && containers.length > 1 && containers.map(step => {
+            const name = PipelineActivity.toContainerName(step);
+            const container = pod.spec.containers?.find((c) => c.name == name);
+
+            return (
+              <Renderer.Component.DrawerItem key={step.name} name={step.name}>
+                { container && container.image }
+              </Renderer.Component.DrawerItem>
+            );
+          })
+        }
+      </div>
+     */
+
     const { object: activity } = this.props;
     return (
       <div className='PipelineActivity'>
         <DrawerTitle children='Jenkins X Pipeline' />
-        <DrawerItem name='Context'>
-          { activity.spec.context }
-        </DrawerItem>
         <DrawerItem name='Pipeline'>
-          { activity.spec.pipeline }
-        </DrawerItem>
-        <DrawerItem name='Build Number'>
-          { activity.spec.build }
+          { activity.pipelineDescription }
         </DrawerItem>
         <DrawerItem name='Started'>
           { activity.spec.startedTimestamp }
