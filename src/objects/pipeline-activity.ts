@@ -108,9 +108,7 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
   }
 
   get pipelineDescription(): string {
-    const s = this.spec;
-
-    return (s)? `${s.gitOwner}/${s.gitRepository}/${s.gitBranch} ${this.buildName}` : '';
+    return `${this.spec.gitOwner}/${this.spec.gitRepository}/${this.spec.gitBranch} ${this.buildName}`;
   }
 
   get createdTime(): any {
@@ -131,5 +129,40 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
     });
 
     return answer;
+  }
+
+  get podFromActivity(): Renderer.K8sApi.Pod | undefined {
+    const store = Renderer.K8sApi.apiManager.getStore(Renderer.K8sApi.podsApi);
+    if (!store) {
+      console.log('no store');
+      return undefined;
+    }
+    if (!this.metadata.labels) {
+      return undefined;
+    }
+
+    const namespace = this.getNs() || 'jx';
+    const podName = this.metadata.labels['podName'];
+
+    if (podName) {
+      //console.log('looking up pod', podName, 'in namespace', namespace)
+      return store.getByName(podName, namespace);
+    }
+
+    // lets use the selector to find the pod...
+    const pods = store.getByLabel({
+      branch: this.spec.gitBranch,
+      build: this.spec.build,
+      owner: this.spec.gitOwner,
+      repository: this.spec.gitRepository,
+    });
+    return pods.find((pod) => {
+      const labels = pod.metadata.labels;
+      return labels && labels['jenkins.io/pipelineType'] != 'meta';
+    });
+  }
+
+  static toContainerName(step: PipelineActivityCoreStep): string {
+    return 'step-' + step.name.toLowerCase().split(' ').join('-');
   }
 }

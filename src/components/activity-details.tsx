@@ -2,7 +2,6 @@ import { Renderer } from '@k8slens/extensions';
 import React from 'react';
 
 import { PipelineActivity } from '../objects/pipeline-activity';
-import { podFromActivity, toContainerName } from './pipeline-activity-menu';
 
 export type ActivityDetailsProps = Renderer.Component.KubeObjectDetailsProps<PipelineActivity>;
 
@@ -12,7 +11,7 @@ export class ActivityDetails extends React.Component<ActivityDetailsProps> {
     if (!activity) return null;
 
     const containers = activity.activityContainers;
-    const pod = podFromActivity(activity);
+    const pod = activity.podFromActivity;
 
     return (
       /*
@@ -37,7 +36,7 @@ export class ActivityDetails extends React.Component<ActivityDetailsProps> {
 
         {
           pod && containers.length > 1 && containers.map(step => {
-            const name = toContainerName(step.name);
+            const name = PipelineActivity.toContainerName(step);
             const container = pod.spec.containers?.find((c) => c.name == name);
 
             return (
