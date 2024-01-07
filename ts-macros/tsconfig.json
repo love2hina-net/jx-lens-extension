@@ -1,0 +1,13 @@
+  
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "exclude": ["./tests", "./test", "./dist", "./node_modules", "./playground"]
+}

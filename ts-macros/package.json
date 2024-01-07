@@ -1,0 +1,50 @@
+{
+  "name": "ts-macros",
+  "version": "2.6.0",
+  "description": "A typescript transformer / plugin which allows you to write macros for typescript!",
+  "main": "dist/index.js",
+  "bin": "dist/cli/index.js",
+  "dependencies": {
+    "yargs-parser": "^21.1.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^16.18.10",
+    "@types/ts-expose-internals": "npm:ts-expose-internals@^5.2.2",
+    "@types/yargs-parser": "^21.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
+    "@typescript-eslint/parser": "^6.7.2",
+    "chai": "^4.3.8",
+    "diff": "^5.1.0",
+    "eslint": "^7.32.0",
+    "mocha": "^9.2.2",
+    "ts-patch": "^3.0.2",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "typescript": "4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "npx eslint",
+    "test": "tsc && cd ./tests && tspc && mocha dist/integrated/**/*.js && node ./dist/snapshots/index",
+    "playground": "tsc && cd ./playground && npm run dev",
+    "manual": "tsc && cd ./test && tspc",
+    "prepublishOnly": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoogleFeud/ts-macros.git"
+  },
+  "keywords": [
+    "typescript",
+    "macros"
+  ],
+  "author": "GoogleFeud",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GoogleFeud/ts-macros/issues"
+  },
+  "homepage": "https://googlefeud.github.io/ts-macros/"
+}
