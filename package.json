@@ -18,6 +18,7 @@
   "scripts": {
     "build": "npm run clean && npx webpack --config webpack.config.prod.ts",
     "dev": "npm run clean && npx webpack --config webpack.config.dev.ts",
+    "macro": "npm run clean && npx tspc --build",
     "clean": "npx rimraf dist"
   },
   "contributes": {
@@ -40,11 +41,12 @@
     "sass-loader": "^13.3.3",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.5.1",
+    "ts-macros": "file:ts-macros",
     "ts-node": "^10.9.2",
+    "ts-patch": "^3.1.1",
     "typescript": "^5.3.3",
     "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
-    "ts-macros": "file:ts-macros"
+    "webpack-cli": "^5.1.4"
   },
   "build": {
     "asar": true,

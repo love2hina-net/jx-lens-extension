@@ -103,7 +103,9 @@ export class MacroTransformer {
                         const sym = resolveAliasedSymbol(this.checker, this.checker.getSymbolAtLocation(el.name));
                         if (!sym) return true;
                         if (this.macros.has(sym) || nativeMacros[sym.name]) return false;
-                        else if ((hasBit(sym.flags, ts.SymbolFlags.Interface) && !hasBit(sym.flags, ts.SymbolFlags.Class)) || hasBit(sym.flags, ts.SymbolFlags.ConstEnum) || hasBit(sym.flags, ts.SymbolFlags.TypeAlias)) return this.config.keepImports;
+                        // 2024/01/07 webmaster@love2hina.net import { Link } from 'react-router-dom'; was interface and function.
+                        else if ((hasBit(sym.flags, ts.SymbolFlags.Interface) && !hasBit(sym.flags, ts.SymbolFlags.Class | ts.SymbolFlags.Function))
+                          || hasBit(sym.flags, ts.SymbolFlags.ConstEnum) || hasBit(sym.flags, ts.SymbolFlags.TypeAlias)) return this.config.keepImports;
                         else return true;
                     });
                     if (filtered.length) statements.push(ts.factory.updateImportDeclaration(stmt, stmt.modifiers, ts.factory.createImportClause(stmt.importClause.isTypeOnly, undefined, ts.factory.createNamedImports(filtered)), stmt.moduleSpecifier, stmt.assertClause));
