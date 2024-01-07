@@ -19,11 +19,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-import React from 'react';
 import { Common, Renderer } from '@k8slens/extensions';
+import React from 'react';
+
 import { Preview } from '../objects/preview';
-import { openExternalLink } from './activity-menu';
+import { openExternalLink } from '../common';
 
 const {
   Component: {

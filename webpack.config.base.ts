@@ -1,5 +1,7 @@
 import webpack from 'webpack';
 import path from 'path';
+import { Program } from 'typescript';
+import TsMacros from 'ts-macros';
 
 export const renderer: webpack.Configuration = {
   entry: './renderer.tsx',
@@ -9,16 +11,19 @@ export const renderer: webpack.Configuration = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              getCustomTransformers: (p: Program) => ({ before: [TsMacros(p)] }),
+            },
+          },
+        ],
         exclude: /node_modules/,
       },
       {
         test: /\.s?css$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader',
-        ],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
     ],
   },

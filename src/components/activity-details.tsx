@@ -2,7 +2,7 @@ import { Renderer } from '@k8slens/extensions';
 import React from 'react';
 
 import { PipelineActivity } from '../objects/pipeline-activity';
-import { activityContainers, podFromActivity, toContainerName } from './activity-menu';
+import { podFromActivity, toContainerName } from './pipeline-activity-menu';
 
 export type ActivityDetailsProps = Renderer.Component.KubeObjectDetailsProps<PipelineActivity>;
 
@@ -11,7 +11,7 @@ export class ActivityDetails extends React.Component<ActivityDetailsProps> {
     const { object: activity } = this.props;
     if (!activity) return null;
 
-    const containers = activityContainers(activity);
+    const containers = activity.activityContainers;
     const pod = podFromActivity(activity);
 
     return (

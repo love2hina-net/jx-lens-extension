@@ -100,8 +100,7 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
   get buildName(): string {
     const { build, context } = this.spec;
 
-    return (build && context)?
-      `#${build} ${context}` : build || context || '';
+    return (build && context)? `#${build} ${context}` : build || context || '';
   }
 
   get createdAt(): string {
@@ -116,5 +115,21 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
 
   get createdTime(): any {
     return createdTime(this.metadata.creationTimestamp);
-  }  
+  }
+
+  /**
+   * activityContainers returns an array of pipeline steps in order
+   */
+  get activityContainers(): PipelineActivityCoreStep[] {
+    const answer: PipelineActivityCoreStep[] = [];
+
+    this.spec.steps?.forEach((step) => {
+      const steps = step.stage?.steps;
+      if (steps) {
+        answer.push(...steps);
+      }
+    });
+
+    return answer;
+  }
 }

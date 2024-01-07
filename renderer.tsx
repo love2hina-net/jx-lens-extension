@@ -6,7 +6,7 @@ import { PipelineActivity } from './src/objects/pipeline-activity';
 import { PipelineActivityPage } from './src/components/pipeline-activity-page';
 import { PipelineActivityDetails, PipelineActivityDetailsProps } from './src/components/pipeline-activity-details';
 import { ActivityDetails, ActivityDetailsProps } from './src/components/activity-details';
-import { ActivityMenu, ActivityMenuProps } from './src/components/activity-menu';
+import { PipelineActivityMenu, PipelineActivityMenuProps } from './src/components/pipeline-activity-menu';
 
 import { PreviewPage } from './src/components/preview-page';
 import { PreviewMenu, PreviewMenuProps } from './src/components/preview-menu';
@@ -137,7 +137,7 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       kind: PipelineActivity.kind,
       apiVersions: ['jenkins.io/v1'],
       components: {
-        MenuItem: (props: ActivityMenuProps) => <ActivityMenu {...props} />
+        MenuItem: (props: PipelineActivityMenuProps) => <PipelineActivityMenu {...props} />
       }
     },
     {

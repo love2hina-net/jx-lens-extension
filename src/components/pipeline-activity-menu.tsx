@@ -19,13 +19,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-import React from 'react';
 import { Common, Renderer } from '@k8slens/extensions';
+import React from 'react';
+import { $$escape } from 'ts-macros';
+
 import { PipelineActivity, PipelineActivityStep, PipelineActivityCoreStep } from '../objects/pipeline-activity';
-import * as electron from 'electron';
 import { lighthouseBreakpointsStore } from '../objects/lighthouse-breakpoint-store';
 import { LighthouseBreakpoint, LighthouseBreakpointFilter } from '../objects/lighthouse-breakpoint';
+import { If } from './utility';
+import { openExternalLink } from '../common';
 
 const {
   Component: {
@@ -45,111 +47,79 @@ const {
   Util,
 } = Common;
 
+function $if(condition: any, child: () => React.JSX.Element): any {
+  return (condition) && $$escape!(child);
+}
 
-export type ActivityMenuProps = Renderer.Component.KubeObjectMenuProps<PipelineActivity>;
+export type PipelineActivityMenuProps = Renderer.Component.KubeObjectMenuProps<PipelineActivity>;
 
-export class ActivityMenu extends React.Component<ActivityMenuProps> {
-
+export class PipelineActivityMenu extends React.Component<PipelineActivityMenuProps> {
   render() {
     const { object, toolbar } = this.props;
 
-    let link = object.spec.gitUrl || '';
-    const containers = activityContainers(object);
+    const link = object.spec.gitUrl || '';
+    const containers = object.activityContainers;
 
     const runningContainerStep = findLatestRunningContainerStep(containers, false);
-    const latestContainerName = findLatestRunningContainerStep(containers, true);
 
     const menuLinks = renderMenuItems(object, toolbar);
     const breakpoint = breakpointFromActivity(object);
 
     return (
       <>
-        {containers.length > 0 && (
-          <MenuItem>
-            <Icon material='subject' interactive={toolbar} tooltip={toolbar && 'View the pipeline logs'}/>
-            <span className='title'>Logs</span>
-            <>
-              <Icon className='arrow' material='keyboard_arrow_right'/>
-              <SubMenu>
-                {latestContainerName && (
-                  <MenuItem key={'latest-step-' + latestContainerName}
-                            onClick={Util.prevDefault(() => this.viewLogs(latestContainerName))}
-                            className='flex align-center'
-                            title={'view logs for the latest pipeline step: ' + latestContainerName}>
-                    <StatusBrick/>
-                    <span>latest step</span>
-                  </MenuItem>
-                )}
-                {latestContainerName && containers.length > 1 && (
+        { this.renderLogsMenu(containers, toolbar) }
+        {
+          containers.length > 0 && runningContainerStep && (
+            <MenuItem>
+              <Icon svg='ssh' interactive={toolbar} tooltip={toolbar && 'Pod Shell'}/>
+              <span className='title'>Shell</span>
+              {
+                containers.length > 0 && runningContainerStep && (
                   <>
-                    <MenuItem key={'-separator-'}
-                              className='flex align-center'>
-                      <span></span>
-                    </MenuItem>
-                    {
-                      containers.map(container => {
-                        const name = toContainerName(container.name);
-
-                        return (
-                          <MenuItem key={name} onClick={Util.prevDefault(() => this.viewLogs(name))}
-                                    className='flex align-center'
-                                    title='view logs for this pipeline step'>
-                            <StatusBrick/>
-                            <span>{name}</span>
-                          </MenuItem>
-                        );
-                      })
-                    }
-                  </>
-                )}
-              </SubMenu>
-            </>
-          </MenuItem>
-        )}
-        {containers.length > 0 && runningContainerStep && (
-          <MenuItem>
-            <Icon svg='ssh' interactive={toolbar} tooltip={toolbar && 'Pod Shell'}/>
-            <span className='title'>Shell</span>
-            {containers.length > 0 && runningContainerStep && (
-              <>
-                <Icon className='arrow' material='keyboard_arrow_right'/>
-                <SubMenu>
-                  {runningContainerStep && (
-                    <MenuItem key={'latest-step-' + runningContainerStep}
-                              onClick={Util.prevDefault(() => this.execShell(runningContainerStep))}
-                              className='flex align-center'
-                              title={'open a shell in the latest pipeline step: ' + runningContainerStep}>
-                      <StatusBrick/>
-                      <span>latest step</span>
-                    </MenuItem>
-                  )}
-                  {runningContainerStep && containers.length > 1 && (
-                    <>
-                      <MenuItem key={'-separator-'}
-                                className='flex align-center'>
-                        <span></span>
-                      </MenuItem>
+                    <Icon className='arrow' material='keyboard_arrow_right'/>
+                    <SubMenu>
                       {
-                        containers.map(container => {
-                          const name = toContainerName(container.name);
-
-                          return (
-                            <MenuItem key={name} onClick={Util.prevDefault(() => this.execShell(name))}
-                                      className='flex align-center'
-                                      title='open a shell into this pipeline step'>
-                              <StatusBrick/>
-                              <span>{name}</span>
-                            </MenuItem>
-                          );
-                        })
+                        runningContainerStep && (
+                          <MenuItem key={'latest-step-' + runningContainerStep}
+                                    onClick={Util.prevDefault(() => this.execShell(runningContainerStep))}
+                                    className='flex align-center'
+                                    title={'open a shell in the latest pipeline step: ' + runningContainerStep}>
+                            <StatusBrick/>
+                            <span>latest step</span>
+                          </MenuItem>
+                        )
                       }
-                    </>
-                  )}
-                </SubMenu>
-              </>
-            )}
-          </MenuItem>
-        )}
+                      {
+                        runningContainerStep && containers.length > 1 && (
+                          <>
+                            <MenuItem key={'-separator-'}
+                                      className='flex align-center'>
+                              <span></span>
+                            </MenuItem>
+                            {
+                              containers.map(container => {
+                                const name = toContainerName(container.name);
+
+                                return (
+                                  <MenuItem key={name} onClick={Util.prevDefault(() => this.execShell(name))}
+                                            className='flex align-center'
+                                            title='open a shell into this pipeline step'>
+                                    <StatusBrick/>
+                                    <span>{name}</span>
+                                  </MenuItem>
+                                );
+                              })
+                            }
+                          </>
+                        )
+                      }
+                    </SubMenu>
+                  </>
+                )
+              }
+            </MenuItem>
+          )
+        }
         {lighthouseBreakpointsStore.isLoaded && (
           <MenuItem>
             <Icon material='adb' interactive={toolbar} tooltip={toolbar && 'Pipeline breakpoint'}/>
@@ -181,6 +151,59 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
         </MenuItem>
         {menuLinks}
       </>
+    );
+  }
+
+  private renderLogsMenu(steps: PipelineActivityCoreStep[], toolbar: boolean | undefined): React.JSX.Element {
+    const latestContainerName = findLatestRunningContainerStep(steps, true);
+
+    return (
+      <MenuItem
+        disabled={steps.length == 0}>
+        <Icon material='subject' interactive={toolbar} tooltip={toolbar && 'View the pipeline logs'}/>
+        <span className='title'>Logs</span>
+
+        <>
+          <Icon className='arrow' material='keyboard_arrow_right'/>
+          <SubMenu>
+            { $if!(latestContainerName, () => (
+              <MenuItem
+                key={'latest-step-' + latestContainerName}
+                onClick={Util.prevDefault(() => this.viewLogs(latestContainerName))}
+                className='flex align-center'
+                title={'view logs for the latest pipeline step: ' + latestContainerName}>
+                <StatusBrick/>
+                <span>latest step</span>
+              </MenuItem>
+            )) }
+            { $if!(latestContainerName && steps.length > 1, () => (
+              <>
+                <MenuItem
+                  key={'-separator-'}
+                  className='flex align-center'>
+                  <span></span>
+                </MenuItem>
+                {
+                  steps.map(step => {
+                    const name = toContainerName(step.name);
+
+                    return (
+                      <MenuItem
+                        key={name}
+                        onClick={Util.prevDefault(() => this.viewLogs(name))}
+                        className='flex align-center'
+                        title='view logs for this pipeline step'>
+                        <StatusBrick/>
+                        <span>{ name }</span>
+                      </MenuItem>
+                    );
+                  })
+                }
+              </>
+            )) }
+          </SubMenu>
+        </>
+      </MenuItem>
     );
   }
 
@@ -287,20 +310,6 @@ export class ActivityMenu extends React.Component<ActivityMenuProps> {
   }
 }
 
-/**
- * openExternalLink opens the external browser link
- * @param link
- */
-export function openExternalLink(link: string) {
-  //console.log('openning link', link);
-  window.setTimeout(() => {
-    //console.log('starting to open link', link);
-    electron.shell.openExternal(link);
-    console.log('opened link', link);
-  }, 1);
-}
-
-
 export function podFromActivity(pa: PipelineActivity) {
   let store = Renderer.K8sApi.apiManager.getStore(Renderer.K8sApi.podsApi);
   if (!store) {
@@ -352,33 +361,6 @@ export function activityToBreakpointFilter(pa: PipelineActivity): LighthouseBrea
     repository: ps.gitRepository,
     context: ps.context
   }
-}
-
-
-/**
- * activityContainers returns an array of pipeline steps in order
- */
-export function activityContainers(pa: PipelineActivity): PipelineActivityCoreStep[] {
-  const answer: PipelineActivityCoreStep[] = [];
-  if (!pa || !pa.spec) {
-    return answer;
-  }
-  let steps = pa.spec.steps;
-  if (!steps) {
-    return answer;
-  }
-  steps.forEach((step) => {
-    const st = step.stage;
-    if (st) {
-      const ssteps = st.steps;
-      if (ssteps) {
-        ssteps.forEach((ss) => {
-          answer.push(ss);
-        });
-      }
-    }
-  });
-  return answer;
 }
 
 function findLatestRunningContainerStep(containers: PipelineActivityCoreStep[], useLastIfNotRunning: boolean): string {
