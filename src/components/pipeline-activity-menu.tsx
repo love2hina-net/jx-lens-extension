@@ -22,7 +22,7 @@
 import { Common, Renderer } from '@k8slens/extensions';
 import React from 'react';
 
-import { PipelineActivity, PipelineActivityStep, PipelineActivityCoreStep } from '../objects/pipeline-activity';
+import { PipelineActivity, PipelineActivityStep, PipelineActivityTaskRunStep } from '../objects/pipeline-activity';
 import { lighthouseBreakpointsStore } from '../objects/lighthouse-breakpoint-store';
 import { LighthouseBreakpoint, LighthouseBreakpointFilter } from '../objects/lighthouse-breakpoint';
 import { $if } from './utility';
@@ -48,12 +48,32 @@ const {
 
 export type PipelineActivityMenuProps = Renderer.Component.KubeObjectMenuProps<PipelineActivity>;
 
-export class PipelineActivityMenu extends React.Component<PipelineActivityMenuProps> {
+type PipelineActivityMenuState = {
+  steps: PipelineActivityTaskRunStep[];
+};
+
+export class PipelineActivityMenu extends React.Component<PipelineActivityMenuProps, PipelineActivityMenuState> {
+  constructor(props: PipelineActivityMenuProps) {
+    super(props);
+    this.state = {
+      steps: [],
+    };
+  }
+
+  async componentDidMount() {
+    const { object: activity } = this.props;
+
+    // ロードする
+    const newState: PipelineActivityMenuState = {
+      steps: (await activity.getSteps()).flatMap((run) => run.steps),
+    };
+    this.setState(newState);
+  }
+
   render() {
     const { object: activity, toolbar } = this.props;
-
+    const { steps } = this.state;
     const link = activity.spec.gitUrl || '';
-    const steps = activity.activityContainers;
 
     return (
       <>
@@ -69,8 +89,8 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
     );
   }
 
-  private renderLogsMenu(steps: PipelineActivityCoreStep[], toolbar: boolean | undefined): React.JSX.Element {
-    const latestContainerName = findLatestRunningContainerStep(steps, true);
+  private renderLogsMenu(steps: PipelineActivityTaskRunStep[], toolbar: boolean | undefined): React.JSX.Element {
+    const latestStep = findLatestRunningContainerStep(steps, true);
 
     return (
       <MenuItem disabled={steps.length == 0}>
@@ -80,18 +100,18 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
         <>
           <Icon className='arrow' material='keyboard_arrow_right' />
           <SubMenu>
-            { $if!(latestContainerName, () => (
+            { $if!(latestStep, () => (
               <MenuItem
-                key={'latest-step-' + latestContainerName}
-                onClick={Util.prevDefault(() => this.viewLogs(latestContainerName))}
+                key={'latest-step-' + latestStep!.containerName}
+                onClick={Util.prevDefault(() => this.viewLogs(latestStep!))}
                 className='flex align-center'
-                title={'view logs for the latest pipeline step: ' + latestContainerName}
+                title={'view logs for the latest pipeline step: ' + latestStep!.containerName}
               >
                 <StatusBrick />
                 <span>latest step</span>
               </MenuItem>
             )) }
-            { $if!(latestContainerName && steps.length > 1, () => (
+            { $if!(latestStep && steps.length > 1, () => (
               <>
                 <MenuItem
                   key='-separator-'
@@ -101,12 +121,12 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
                 </MenuItem>
                 {
                   steps.map((step) => {
-                    const name = PipelineActivity.toContainerName(step);
+                    const name = step.containerName;
 
                     return (
                       <MenuItem
                         key={name}
-                        onClick={Util.prevDefault(() => this.viewLogs(name))}
+                        onClick={Util.prevDefault(() => this.viewLogs(step))}
                         className='flex align-center'
                         title='view logs for this pipeline step'
                       >
@@ -124,29 +144,29 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
     );
   }
 
-  private renderShellsMenu(steps: PipelineActivityCoreStep[], toolbar: boolean | undefined): React.JSX.Element {
-    const runningContainerStep = findLatestRunningContainerStep(steps, false);
+  private renderShellsMenu(steps: PipelineActivityTaskRunStep[], toolbar: boolean | undefined): React.JSX.Element {
+    const runningStep = findLatestRunningContainerStep(steps, false);
 
     return (
-      <MenuItem disabled={steps.length == 0 || !runningContainerStep}>
+      <MenuItem disabled={steps.length == 0 || !runningStep}>
         <Icon svg='ssh' interactive={toolbar} tooltip={toolbar && 'Pod Shell'} />
         <span className='title'>Shell</span>
-        { $if!(steps.length > 0 && runningContainerStep, () => (
+        { $if!(steps.length > 0 && runningStep, () => (
           <>
             <Icon className='arrow' material='keyboard_arrow_right' />
             <SubMenu>
-              { $if!(runningContainerStep, () => (
+              { $if!(runningStep, () => (
                 <MenuItem
-                  key={'latest-step-' + runningContainerStep}
-                  onClick={Util.prevDefault(() => this.execShell(runningContainerStep))}
+                  key={'latest-step-' + runningStep!.containerName}
+                  onClick={Util.prevDefault(() => this.execShell(runningStep!))}
                   className='flex align-center'
-                  title={'open a shell in the latest pipeline step: ' + runningContainerStep}
+                  title={'open a shell in the latest pipeline step: ' + runningStep!.containerName}
                 >
                   <StatusBrick />
                   <span>latest step</span>
                 </MenuItem>
               )) }
-              { $if!(runningContainerStep && steps.length > 1, () => (
+              { $if!(runningStep && steps.length > 1, () => (
                 <>
                   <MenuItem
                     key='-separator-'
@@ -156,12 +176,12 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
                   </MenuItem>
                   {
                     steps.map((step) => {
-                      const name = PipelineActivity.toContainerName(step);
+                      const name = step.containerName;
 
                       return (
                         <MenuItem
                           key={name}
-                          onClick={Util.prevDefault(() => this.execShell(name))}
+                          onClick={Util.prevDefault(() => this.execShell(step))}
                           className='flex align-center'
                           title='open a shell into this pipeline step'
                         >
@@ -293,61 +313,53 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
     openExternalLink(link);
   }
 
-  async viewLogs(containerName: string) {
-    Navigation.hideDetails();
-
+  async viewLogs(step: PipelineActivityTaskRunStep) {
     const activity = this.props.object;
-    const pod = activity.podFromActivity;
-    // console.log('found pod', pod);
-    if (!pod) {
-      console.log('could not find pod for PipelineActivity', activity);
-      return;
-    }
+    const [pod, container] = await activity.getPodFromStep(step);
 
-    const container = pod.spec.containers?.find((c) => c.name == containerName);
-    if (!container) {
-      console.log('could not find container', containerName);
-      return;
-    }
-
-    logTabStore.createPodTab({
-      selectedPod: pod,
-      selectedContainer: container,
-    });
-  }
-
-  async execShell(container?: string) {
-    Navigation.hideDetails();
-
-    const activity = this.props.object;
-    const pod = activity.podFromActivity;
-    console.log('found pod', pod);
-    if (!pod) {
-      return;
-    }
-
-    const containerParam = container ? `-c ${container}` : '';
-    let command = `kubectl exec -i -t -n ${pod.getNs()} ${pod.getName()} ${containerParam} '--'`;
-
-    if (window.navigator.platform !== 'Win32') {
-      command = `exec ${command}`;
-    }
-
-    if (pod.getSelectedNodeOs() === 'windows') {
-      command = `${command} powershell`;
+    if (pod && container) {
+      Navigation.hideDetails();
+      logTabStore.createPodTab({
+        selectedPod: pod,
+        selectedContainer: container,
+      });
     }
     else {
-      command = `${command} sh -c 'clear; (bash || ash || sh)'`;
+      console.log('could not find container', step.containerName);
     }
+  }
 
-    const shell = createTerminalTab({
-      title: `Pod: ${pod.getName()} (namespace: ${pod.getNs()})`,
-    });
+  async execShell(step: PipelineActivityTaskRunStep) {
+    const activity = this.props.object;
+    const [pod, container] = await activity.getPodFromStep(step);
 
-    terminalStore.sendCommand(command, {
-      enter: true,
-      tabId: shell.id,
-    });
+    if (pod && container) {
+      Navigation.hideDetails();
+
+      const containerParam = container ? `-c ${container}` : '';
+      let command = `kubectl exec -i -t -n ${pod.getNs()} ${pod.getName()} ${containerParam} '--'`;
+      if (!Common.App.isWindows) {
+        command = `exec ${command}`;
+      }
+      if (pod.getSelectedNodeOs() === 'windows') {
+        // TODO: BUG: Windows Nano container images not included powershell. only pwsh available.
+        command = `${command} powershell`;
+      }
+      else {
+        command = `${command} sh -c 'clear; (bash || ash || sh)'`;
+      }
+
+      const shell = createTerminalTab({
+        title: `Pod: ${pod.getName()} (namespace: ${pod.getNs()})`,
+      });
+      terminalStore.sendCommand(command, {
+        enter: true,
+        tabId: shell.id,
+      });
+    }
+    else {
+      console.log('could not find container', step.containerName);
+    }
   }
 
   async removeBreakpoint(breakpoint: LighthouseBreakpoint) {
@@ -415,10 +427,11 @@ function activityToBreakpointFilter(activity: PipelineActivity): LighthouseBreak
   };
 }
 
-function findLatestRunningContainerStep(containers: PipelineActivityCoreStep[], useLastIfNotRunning: boolean): string {
+function findLatestRunningContainerStep(containers: PipelineActivityTaskRunStep[], useLastIfNotRunning: boolean):
+PipelineActivityTaskRunStep | undefined {
   let latest = containers.find((c) => !c.completedTimestamp);
   if (useLastIfNotRunning && !latest) {
     latest = containers.at(-1);
   }
-  return (latest) ? PipelineActivity.toContainerName(latest) : '';
+  return latest;
 }

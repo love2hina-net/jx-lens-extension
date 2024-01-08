@@ -51,10 +51,7 @@ export class RepositoryPage extends React.Component {
   // renderStatus renders the status
   private renderStatus(repository: SourceRepository) {
     const annotations = repository.metadata.annotations;
-    if (!annotations) {
-      return '';
-    }
-    const value = annotations['webhook.jenkins-x.io']?.toLowerCase();
+    const value = annotations?.['webhook.jenkins-x.io']?.toLowerCase();
     if (!value) {
       return '';
     }
@@ -69,7 +66,7 @@ export class RepositoryPage extends React.Component {
       );
     }
     let title = 'Failed to register webhook';
-    const message = annotations['webhook.jenkins-x.io/error'];
+    const message = annotations?.['webhook.jenkins-x.io/error'];
     if (message) {
       title += '\n' + escape(message);
     }

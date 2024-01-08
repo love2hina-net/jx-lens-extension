@@ -1,5 +1,6 @@
 import { Renderer } from '@k8slens/extensions';
 
+import { pipelineRunsStore } from './pipeline-run-store';
 import { createdTime, dateFromNow } from '../common';
 
 type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
@@ -42,6 +43,16 @@ export type PipelineActivityStep = {
   preview?: PipelineActivityPreviewStep;
   promote?: PipelineActivityPromoteStep;
   stage?: PipelineActivityStageStep;
+};
+
+export type PipelineActivityTaskRunStep = PipelineActivityCoreStep & {
+  podName: string;
+  containerName: string;
+};
+
+export type PipelineActivityTaskRun = {
+  pipelineTaskName: string;
+  steps: PipelineActivityTaskRunStep[];
 };
 
 export type PipelineActivitySpec = {
@@ -115,55 +126,58 @@ PipelineActivitySpec
     return createdTime(this.metadata.creationTimestamp);
   }
 
-  /**
-   * activityContainers returns an array of pipeline steps in order
-   */
-  get activityContainers(): PipelineActivityCoreStep[] {
-    const answer: PipelineActivityCoreStep[] = [];
-
-    this.spec.steps?.forEach((step) => {
-      const steps = step.stage?.steps;
-      if (steps) {
-        answer.push(...steps);
-      }
-    });
-
-    return answer;
+  private static getNormalizeName(name: string): string {
+    // TODO: 正規化の仕様を確認する
+    return name.toLowerCase().replace(/ /g, '-');
   }
 
-  // TODO: BUG: 1つのアクティビティに対して、複数のPodが存在する場合があるので、正しくない
-  get podFromActivity(): Renderer.K8sApi.Pod | undefined {
+  async getSteps(): Promise<PipelineActivityTaskRun[]> {
+    const namespace = this.getNs() || 'jx';
+    const jxId = this.getLabels().find((label) => label.startsWith('lighthouse.jenkins-x.io/id='));
+    const result: PipelineActivityTaskRun[] = [];
+
+    if (jxId) {
+      await pipelineRunsStore.loadAll({ namespaces: [namespace] });
+      const pipelineRun = pipelineRunsStore.getByLabel([jxId])?.[0];
+      if (pipelineRun) {
+        this.spec.steps?.forEach((step) => {
+          // TODO: このステップとPipeleineRunは対応するかは不明(要調査)
+          const current = Object.entries(pipelineRun.status?.taskRuns ?? []).find(([_, i]) => {
+            return i.status.steps.every((j) => step.stage?.steps?.some((k) => PipelineActivity.getNormalizeName(k.name) == j.name));
+          })?.[1];
+          if (current) {
+            const steps: PipelineActivityTaskRunStep[] = step.stage?.steps?.map((i) => {
+              const step = current.status.steps.find((j) => j.name == PipelineActivity.getNormalizeName(i.name));
+              if (!step) {
+                throw new Error('');
+              }
+              return {
+                ...i,
+                podName: current.status.podName,
+                containerName: step.container,
+              };
+            }) ?? [];
+
+            result.push({
+              pipelineTaskName: current.pipelineTaskName,
+              steps: steps,
+            });
+          }
+        });
+      }
+    }
+
+    return result;
+  }
+
+  async getPodFromStep(step: PipelineActivityTaskRunStep):
+  Promise<[Renderer.K8sApi.Pod | undefined, Renderer.K8sApi.IPodContainer | undefined]> {
     const store = Renderer.K8sApi.apiManager.getStore(Renderer.K8sApi.podsApi);
     if (!store) {
-      console.log('no store');
-      return undefined;
+      throw new Error('Unexpected error: could not find pods store.');
     }
-    if (!this.metadata.labels) {
-      return undefined;
-    }
-
-    const namespace = this.getNs() || 'jx';
-    const podName = this.metadata.labels['podName'];
-
-    if (podName) {
-      // console.log('looking up pod', podName, 'in namespace', namespace)
-      return store.getByName(podName, namespace);
-    }
-
-    // lets use the selector to find the pod...
-    const pods = store.getByLabel({
-      branch: this.spec.gitBranch,
-      build: this.spec.build,
-      owner: this.spec.gitOwner,
-      repository: this.spec.gitRepository,
-    });
-    return pods.find((pod) => {
-      const labels = pod.metadata.labels;
-      return labels && labels['jenkins.io/pipelineType'] != 'meta';
-    });
-  }
-
-  static toContainerName(step: PipelineActivityCoreStep): string {
-    return 'step-' + step.name.toLowerCase().split(' ').join('-');
+    const pod = store.getByName(step.podName, this.getNs());
+    const container = pod?.spec.containers?.find((i) => i.name == step.containerName);
+    return pod && container ? [pod, container] : [undefined, undefined];
   }
 }

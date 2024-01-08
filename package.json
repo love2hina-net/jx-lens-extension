@@ -2,7 +2,7 @@
   "type": "commonjs",
   "private": true,
   "name": "@love2hina/jx-lens-extension",
-  "version": "1.0.0-alpha3",
+  "version": "1.0.0-alpha4",
   "description": "Lens extension to visualize Jenkins X resources and their relations",
   "author": "webmaster@love2hina.net",
   "repository": {
