@@ -2,22 +2,21 @@ import { Renderer } from '@k8slens/extensions';
 import React from 'react';
 
 import { PipelineActivity } from './src/objects/pipeline-activity';
+import { Environment } from './src/objects/environment';
+import { Preview } from './src/objects/preview';
+import { SourceRepository } from './src/objects/source-repository';
+import { PipelineRun } from './src/objects/pipeline-run';
 
 import { PipelineActivityPage } from './src/components/pipeline-activity-page';
 import { PipelineActivityDetails, PipelineActivityDetailsProps } from './src/components/pipeline-activity-details';
 import { PipelineActivityMenu, PipelineActivityMenuProps } from './src/components/pipeline-activity-menu';
 import { LighthouseBreakpointPage } from './src/components/lighthouse-breakpoint-page';
-
+import { EnvironmentPage } from './src/components/environment-page';
+import { EnvironmentMenu, EnvironmentMenuProps } from './src/components/environment-menu';
 import { PreviewPage } from './src/components/preview-page';
 import { PreviewMenu, PreviewMenuProps } from './src/components/preview-menu';
-import { Preview } from './src/objects/preview';
 import { RepositoryPage } from './src/components/repository-page';
-import { SourceRepository } from './src/objects/source-repository';
 import { RepositoryMenu, RepositoryMenuProps } from './src/components/repository-menu';
-import { Environment } from './src/objects/environment';
-import { EnvironmentMenu, EnvironmentMenuProps } from './src/components/environment-menu';
-import { EnvironmentPage } from './src/components/environment-page';
-import { PipelineRun } from './src/objects/pipeline-run';
 import { PipelineRunDetails, PipelineRunDetailsProps } from './src/components/pipeline-run-details';
 import { JxRelationsDetails, JxRelationsDetailsProps } from './src/components/jx-relations-details';
 
@@ -52,19 +51,19 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       },
     },
     {
-      id: 'environments',
+      id: 'jx-environments',
       components: {
         Page: () => <EnvironmentPage />,
       },
     },
     {
-      id: 'previews',
+      id: 'jx-previews',
       components: {
         Page: () => <PreviewPage />,
       },
     },
     {
-      id: 'repositories',
+      id: 'jx-repositories',
       components: {
         Page: () => <RepositoryPage />,
       },
@@ -98,31 +97,31 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       target: { pageId: 'jx-breakpoints' },
     },
     {
-      id: 'jenkins-x/environments',
       parentId: 'jenkins-x',
-      target: { pageId: 'environments' },
+      id: 'jenkins-x/environments',
       title: 'Environments',
       components: {
         Icon: NoneIcon,
       },
+      target: { pageId: 'jx-environments' },
     },
     {
-      id: 'jenkins-x/previews',
       parentId: 'jenkins-x',
-      target: { pageId: 'previews' },
+      id: 'jenkins-x/previews',
       title: 'Previews',
       components: {
         Icon: NoneIcon,
       },
+      target: { pageId: 'jx-previews' },
     },
     {
-      id: 'jenkins-x/repositories',
       parentId: 'jenkins-x',
-      target: { pageId: 'repositories' },
+      id: 'jenkins-x/repositories',
       title: 'Repositories',
       components: {
         Icon: NoneIcon,
       },
+      target: { pageId: 'jx-repositories' },
     },
   ];
 

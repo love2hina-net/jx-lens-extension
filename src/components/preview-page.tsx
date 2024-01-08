@@ -49,9 +49,9 @@ export class PreviewPage extends React.Component {
               preview.spec.pullRequest?.owner,
               preview.spec.pullRequest?.repository,
               preview.spec.pullRequest?.number,
-              renderComment(preview),
-              renderAuthor(preview),
-              renderPreview(preview),
+              this.renderComment(preview),
+              this.renderAuthor(preview),
+              this.renderPreview(preview),
               preview.createdAt,
             ];
           }}
@@ -59,62 +59,51 @@ export class PreviewPage extends React.Component {
       </Renderer.Component.TabLayout>
     );
   }
-}
 
-// renderPreview renders the try it button
-function renderPreview(preview: Preview) {
-  if (!preview || !preview.spec) {
-    return '';
+  // renderComment renders the try it button
+  private renderComment(preview: Preview) {
+    const comment = preview.spec.pullRequest?.title;
+    return (
+      <span title={comment}>{comment}</span>
+    );
   }
-  const appURL = preview.spec.resources?.url;
-  if (!appURL) {
-    return '';
-  }
-  return (
-    <ExternalLink href={appURL} text='try me' title='try out the preview'></ExternalLink>
-  );
-}
 
-// renderComment renders the try it button
-function renderComment(preview: Preview) {
-  const comment = preview.spec.pullRequest?.title;
-  return (
-    <span title={comment}>{comment}</span>
-  );
-}
+  // renderAuthor renders the author
+  private renderAuthor(preview: Preview) {
+    const user = preview.spec.pullRequest?.user;
+    const name = user?.name;
+    const imageUrl = user?.imageUrl;
+    const linkUrl = user?.linkUrl ?? 'https://github.com/' + name;
+    if (!name || !imageUrl) {
+      return <span>{ name }</span>;
+    }
+    return (
+      <span
+        title={name}
+        className={styles['author-details']}
+      >
+        <figure key='image'>
+          <img
+            height='18'
+            width='18'
+            src={imageUrl}
+            onLoad={(evt) => evt.currentTarget.classList.add('visible')}
+          />
+        </figure>
+        &nbsp;
+        <ExternalLink href={linkUrl} text={name} title='view the user in git' />
+      </span>
+    );
+  }
 
-// renderAuthor renders the author
-function renderAuthor(preview: Preview) {
-  if (!preview || !preview.spec || !preview.spec.pullRequest) {
-    return '';
+  // renderPreview renders the try it button
+  private renderPreview(preview: Preview) {
+    const appURL = preview.spec.resources?.url;
+    if (!appURL) {
+      return '';
+    }
+    return (
+      <ExternalLink href={appURL} text='try me' title='try out the preview'></ExternalLink>
+    );
   }
-  const user = preview.spec.pullRequest.user;
-  if (!user || !user.username) {
-    return '';
-  }
-  const imageUrl = user.imageUrl;
-  if (!imageUrl) {
-    return <span>{user.username}</span>;
-  }
-  let linkUrl = user.linkUrl;
-  if (!linkUrl) {
-    linkUrl = 'https://github.com/' + user.username;
-  }
-  return (
-    <span
-      title={user.username}
-      className={styles['author-details']}
-    >
-      <figure key='image'>
-        <img
-          height='18'
-          width='18'
-          src={imageUrl}
-          onLoad={(evt) => evt.currentTarget.classList.add('visible')}
-        />
-      </figure>
-      &nbsp;
-      <ExternalLink href={linkUrl} text={user.username} title='view the user in git' />
-    </span>
-  );
 }

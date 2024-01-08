@@ -39,7 +39,7 @@ export class RepositoryPage extends React.Component {
             return [
               repository.spec.org,
               repository.spec.repo,
-              renderStatus(repository),
+              this.renderStatus(repository),
               repository.createdAt,
             ];
           }}
@@ -47,35 +47,34 @@ export class RepositoryPage extends React.Component {
       </Renderer.Component.TabLayout>
     );
   }
-}
 
-// renderStatus renders the status
-function renderStatus(repository: SourceRepository) {
-  if (!repository || !repository.metadata || !repository.metadata.annotations) {
-    return '';
-  }
-  const annotations = repository.metadata.annotations;
-  let value = annotations['webhook.jenkins-x.io'] || '';
-  if (!value) {
-    return '';
-  }
-  value = value.toLowerCase();
-  if (value === 'true') {
+  // renderStatus renders the status
+  private renderStatus(repository: SourceRepository) {
+    const annotations = repository.metadata.annotations;
+    if (!annotations) {
+      return '';
+    }
+    const value = annotations['webhook.jenkins-x.io']?.toLowerCase();
+    if (!value) {
+      return '';
+    }
+    if (value === 'true') {
+      return (
+        <span className={styles['status-succeeded']} title='Webhook registered in git successfully'>Succeeded</span>
+      );
+    }
+    if (value.startsWith('creat')) {
+      return (
+        <span className={styles['status-running']} title='Creating webhook on the git successfully'>Creating</span>
+      );
+    }
+    let title = 'Failed to register webhook';
+    const message = annotations['webhook.jenkins-x.io/error'];
+    if (message) {
+      title += '\n' + escape(message);
+    }
     return (
-      <span className={styles['status-succeeded']} title='Webhook registered in git successfully'>Succeeded</span>
+      <span className={styles['status-failed']} title={title}>Failed</span>
     );
   }
-  if (value.startsWith('creat')) {
-    return (
-      <span className={styles['status-running']} title='Creating webhook on the git successfully'>Creating</span>
-    );
-  }
-  let title = 'Failed to register webhook';
-  const message = annotations['webhook.jenkins-x.io/error'];
-  if (message) {
-    title += '\n' + escape(message);
-  }
-  return (
-    <span className={styles['status-failed']} title={title}>Failed</span>
-  );
 }
