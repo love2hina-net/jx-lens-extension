@@ -37,14 +37,11 @@ const {
   Util,
 } = Common;
 
-
-export interface PreviewMenuProps extends Renderer.Component.KubeObjectMenuProps<Preview> {
-}
-
+export type PreviewMenuProps = Renderer.Component.KubeObjectMenuProps<Preview>;
 
 export class PreviewMenu extends React.Component<PreviewMenuProps> {
   render() {
-    const {object, toolbar} = this.props;
+    const { object, toolbar } = this.props;
 
     const appURL = object.spec.resources?.url;
     if (!appURL) {
@@ -52,9 +49,11 @@ export class PreviewMenu extends React.Component<PreviewMenuProps> {
     }
 
     return (
-      <MenuItem onClick={Util.prevDefault(() => openExternalLink(appURL))}
-                title='View the preview environment application'>
-        <Icon material='visibility' interactive={toolbar}/>
+      <MenuItem
+        onClick={Util.prevDefault(() => openExternalLink(appURL))}
+        title='View the preview environment application'
+      >
+        <Icon material='visibility' interactive={toolbar} />
         <span className='title'>View Preview</span>
       </MenuItem>
     );
@@ -66,4 +65,3 @@ export class PreviewMenu extends React.Component<PreviewMenuProps> {
     openExternalLink(link);
   }
 }
-

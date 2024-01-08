@@ -7,7 +7,7 @@ const {
     Button,
     DrawerItem,
     DrawerTitle,
-  }
+  },
 } = Renderer;
 
 export type JxRelationsDetailsProps = Renderer.Component.KubeObjectDetailsProps;
@@ -31,7 +31,7 @@ export class JxRelationsDetails extends React.Component<JxRelationsDetailsProps,
   constructor(props: JxRelationsDetailsProps) {
     super(props);
     this.state = {
-      relations: []
+      relations: [],
     };
   }
 
@@ -42,13 +42,13 @@ export class JxRelationsDetails extends React.Component<JxRelationsDetailsProps,
 
     if (namespace && jxId) {
       const newState: JxRelationsDetailsState = {
-        relations: []
+        relations: [],
       };
 
       newState.relations = (await Promise.all(JxRelationsDetails.JX_K8S_KIND.flatMap((i) => {
         return i.apiVersions.map(async (apiVersion) => {
           const api = Renderer.K8sApi.apiManager.getApiByKind(i.kind, apiVersion);
-          const store = (api != undefined)? Renderer.K8sApi.apiManager.getStore(api) : undefined;
+          const store = (api != undefined) ? Renderer.K8sApi.apiManager.getStore(api) : undefined;
 
           if (store) {
             await store.loadAll({ namespaces: [namespace] });
@@ -72,9 +72,11 @@ export class JxRelationsDetails extends React.Component<JxRelationsDetailsProps,
           this.state.relations.map((obj) => (
             <DrawerItem
               key={obj.getId()}
-              name={obj.kind}>
+              name={obj.kind}
+            >
               <Link to={Renderer.Navigation.getDetailsUrl(obj.selfLink)}>
-                { obj.getName() }&nbsp;
+                { obj.getName() }
+                &nbsp;
                 <this.LogButton object={obj} />
               </Link>
             </DrawerItem>

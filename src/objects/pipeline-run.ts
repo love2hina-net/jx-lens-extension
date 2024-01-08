@@ -11,7 +11,9 @@ export type PipelineTaskRun = {
       container: string;
     }[];
   };
-}
+};
+
+export type PipelineRunSpec = Record<string, never>;
 
 export type PipelineRunStatus = {
   taskRuns?: {
@@ -19,7 +21,11 @@ export type PipelineRunStatus = {
   };
 };
 
-export class PipelineRun extends Renderer.K8sApi.KubeObject<NamespaceScopedMetadata, PipelineRunStatus, {}> {
+export class PipelineRun extends Renderer.K8sApi.KubeObject<
+NamespaceScopedMetadata,
+PipelineRunStatus,
+PipelineRunSpec
+> {
   static readonly kind = 'PipelineRun';
   static readonly namespaced = true;
   static readonly apiBase = '/apis/tekton.dev/v1beta1/pipelineruns';

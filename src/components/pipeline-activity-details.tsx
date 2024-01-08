@@ -7,7 +7,7 @@ const {
   Component: {
     DrawerItem,
     DrawerTitle,
-  }
+  },
 } = Renderer;
 
 export type PipelineActivityDetailsProps = Renderer.Component.KubeObjectDetailsProps<PipelineActivity>;
@@ -91,7 +91,7 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
           activity.spec.steps?.map(this.renderStep, this)
         }
       </div>
-    )
+    );
   }
 
   private renderStep(step: PipelineActivityStep, index: number): React.JSX.Element {

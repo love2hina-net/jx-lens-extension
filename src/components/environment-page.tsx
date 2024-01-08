@@ -3,25 +3,24 @@ import styles from '../../styles.module.scss';
 import { Renderer } from '@k8slens/extensions';
 import React from 'react';
 import { environmentsStore } from '../objects/environment-store';
-import { Environment } from '../objects/environment'
+import { Environment } from '../objects/environment';
 
 enum sortBy {
   name = 'name',
   namespace = 'namespace',
   strategy = 'strategy',
   source = 'source',
-  age = 'age'
+  age = 'age',
 }
 
-
 export class EnvironmentPage extends React.Component {
-
   render() {
     return (
       <Renderer.Component.TabLayout>
         <Renderer.Component.KubeObjectListLayout
           tableId='environments'
-          className={styles.EnvironmentList} store={environmentsStore}
+          className={styles.EnvironmentList}
+          store={environmentsStore}
           sortingCallbacks={{
             [sortBy.name]: (environment: Environment) => environment.metadata.name,
             [sortBy.namespace]: (environment: Environment) => environment.spec.namespace,
@@ -30,15 +29,15 @@ export class EnvironmentPage extends React.Component {
             [sortBy.age]: (environment: Environment) => environment.createdTime,
           }}
           searchFilters={[
-            (environment: Environment) => environment.getSearchFields()
+            (environment: Environment) => environment.getSearchFields(),
           ]}
           renderHeaderTitle='Environments'
           renderTableHeader={[
-            {title: 'Name', className: 'name', sortBy: sortBy.name},
-            {title: 'Namespace', className: 'namespace', sortBy: sortBy.namespace},
-            {title: 'Strategy', className: 'strategy', sortBy: sortBy.strategy},
-            {title: 'Source', className: 'strategy', sortBy: sortBy.source},
-            {title: 'Age', className: 'age', sortBy: sortBy.age},
+            { title: 'Name', className: 'name', sortBy: sortBy.name },
+            { title: 'Namespace', className: 'namespace', sortBy: sortBy.namespace },
+            { title: 'Strategy', className: 'strategy', sortBy: sortBy.strategy },
+            { title: 'Source', className: 'strategy', sortBy: sortBy.source },
+            { title: 'Age', className: 'age', sortBy: sortBy.age },
           ]}
           renderTableContents={(environment: Environment) => {
             return [
@@ -46,11 +45,11 @@ export class EnvironmentPage extends React.Component {
               environment.spec.namespace,
               environment.spec.promotionStrategy,
               environment.sourceUrl,
-              environment.createdAt
+              environment.createdAt,
             ];
           }}
         />
       </Renderer.Component.TabLayout>
-    )
+    );
   }
 }

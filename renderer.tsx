@@ -6,6 +6,7 @@ import { PipelineActivity } from './src/objects/pipeline-activity';
 import { PipelineActivityPage } from './src/components/pipeline-activity-page';
 import { PipelineActivityDetails, PipelineActivityDetailsProps } from './src/components/pipeline-activity-details';
 import { PipelineActivityMenu, PipelineActivityMenuProps } from './src/components/pipeline-activity-menu';
+import { LighthouseBreakpointPage } from './src/components/lighthouse-breakpoint-page';
 
 import { PreviewPage } from './src/components/preview-page';
 import { PreviewMenu, PreviewMenuProps } from './src/components/preview-menu';
@@ -16,18 +17,24 @@ import { RepositoryMenu, RepositoryMenuProps } from './src/components/repository
 import { Environment } from './src/objects/environment';
 import { EnvironmentMenu, EnvironmentMenuProps } from './src/components/environment-menu';
 import { EnvironmentPage } from './src/components/environment-page';
-import { BreakpointPage } from './src/components/lighthouse-breakpoint-page';
 import { PipelineRun } from './src/objects/pipeline-run';
 import { PipelineRunDetails, PipelineRunDetailsProps } from './src/components/pipeline-run-details';
 import { JxRelationsDetails, JxRelationsDetailsProps } from './src/components/jx-relations-details';
 
-function NoneIcon(props: Renderer.Component.IconProps): React.ReactElement<any, any> | null {
+import JXLogo from './jx.svg';
+
+function NoneIcon(_: Renderer.Component.IconProps): React.ReactElement | null {
   return null;
 }
 
-function JXIcon(props: Renderer.Component.IconProps): React.ReactElement<any, any> | null {
-  const JXLogo = require(`!!raw-loader!./jx.svg`).default;
-  return <Renderer.Component.Icon {...props} svg={JXLogo} tooltip='Jenkins X'/>
+function JXIcon(props: Renderer.Component.IconProps): React.ReactElement | null {
+  return (
+    <Renderer.Component.Icon
+      {...props}
+      svg={JXLogo}
+      tooltip='Jenkins X'
+    />
+  );
 }
 
 export default class JenkinsXExtension extends Renderer.LensExtension {
@@ -35,38 +42,34 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
     {
       id: 'jx-pipelines',
       components: {
-        Page: () => <PipelineActivityPage />
-      }
+        Page: () => <PipelineActivityPage />,
+      },
     },
     {
-      id: 'breakpoints',
+      id: 'jx-breakpoints',
       components: {
-        Page: () => <BreakpointPage />,
-        MenuIcon: JXIcon,
-      }
+        Page: () => <LighthouseBreakpointPage />,
+      },
     },
     {
       id: 'environments',
       components: {
         Page: () => <EnvironmentPage />,
-        MenuIcon: JXIcon,
-      }
+      },
     },
     {
       id: 'previews',
       components: {
         Page: () => <PreviewPage />,
-        MenuIcon: JXIcon,
-      }
+      },
     },
     {
       id: 'repositories',
       components: {
         Page: () => <RepositoryPage />,
-        MenuIcon: JXIcon,
-      }
-    }
-  ]
+      },
+    },
+  ];
 
   clusterPageMenus = [
     {
@@ -74,112 +77,112 @@ export default class JenkinsXExtension extends Renderer.LensExtension {
       title: 'Jenkins X',
       components: {
         Icon: JXIcon,
-      }
+      },
     },
     {
       parentId: 'jenkins-x',
       id: 'jenkins-x/pipelines',
       title: 'Pipelines',
       components: {
-        Icon: NoneIcon
+        Icon: NoneIcon,
       },
-      target: { pageId: 'jx-pipelines' }
+      target: { pageId: 'jx-pipelines' },
     },
     {
-      id: 'jenkins-x/breakpoints',
       parentId: 'jenkins-x',
-      target: {pageId: 'breakpoints'},
+      id: 'jenkins-x/breakpoints',
       title: 'Breakpoints',
       components: {
         Icon: NoneIcon,
-      }
+      },
+      target: { pageId: 'jx-breakpoints' },
     },
     {
       id: 'jenkins-x/environments',
       parentId: 'jenkins-x',
-      target: {pageId: 'environments'},
+      target: { pageId: 'environments' },
       title: 'Environments',
       components: {
         Icon: NoneIcon,
-      }
+      },
     },
     {
       id: 'jenkins-x/previews',
       parentId: 'jenkins-x',
-      target: {pageId: 'previews'},
+      target: { pageId: 'previews' },
       title: 'Previews',
       components: {
         Icon: NoneIcon,
-      }
+      },
     },
     {
       id: 'jenkins-x/repositories',
       parentId: 'jenkins-x',
-      target: {pageId: 'repositories'},
+      target: { pageId: 'repositories' },
       title: 'Repositories',
       components: {
         Icon: NoneIcon,
-      }
+      },
     },
   ];
 
-  // @ts-ignore: 'KubeObjectMenuRegistration' uses unknown type in Generics.
+  // @ts-expect-error: 'KubeObjectMenuRegistration' uses unknown type in Generics.
   kubeObjectMenuItems = [
-    {
-      kind: Environment.kind,
-      apiVersions: ['jenkins.io/v1'],
-      components: {
-        MenuItem: (props: EnvironmentMenuProps) => <EnvironmentMenu {...props} />
-      }
-    },
     {
       kind: PipelineActivity.kind,
       apiVersions: ['jenkins.io/v1'],
       components: {
-        MenuItem: (props: PipelineActivityMenuProps) => <PipelineActivityMenu {...props} />
-      }
+        MenuItem: (props: PipelineActivityMenuProps) => <PipelineActivityMenu {...props} />,
+      },
+    },
+    {
+      kind: Environment.kind,
+      apiVersions: ['jenkins.io/v1'],
+      components: {
+        MenuItem: (props: EnvironmentMenuProps) => <EnvironmentMenu {...props} />,
+      },
     },
     {
       kind: Preview.kind,
       apiVersions: ['preview.jenkins.io/v1alpha1'],
       components: {
-        MenuItem: (props: PreviewMenuProps) => <PreviewMenu {...props} />
-      }
+        MenuItem: (props: PreviewMenuProps) => <PreviewMenu {...props} />,
+      },
     },
     {
       kind: SourceRepository.kind,
       apiVersions: ['jenkins.io/v1'],
       components: {
-        MenuItem: (props: RepositoryMenuProps) => <RepositoryMenu {...props} />
-      }
+        MenuItem: (props: RepositoryMenuProps) => <RepositoryMenu {...props} />,
+      },
     },
   ];
 
-  // @ts-ignore: 'KubeObjectDetailRegistration' uses unknown type in Generics.
+  // @ts-expect-error: 'KubeObjectDetailRegistration' uses unknown type in Generics.
   kubeObjectDetailItems = [
     {
       kind: PipelineActivity.kind,
       apiVersions: ['jenkins.io/v1'],
       components: {
-        Details: (props: PipelineActivityDetailsProps) => <PipelineActivityDetails {...props} />
-      }
+        Details: (props: PipelineActivityDetailsProps) => <PipelineActivityDetails {...props} />,
+      },
     },
     {
       kind: PipelineRun.kind,
       apiVersions: ['tekton.dev/v1beta1'],
       components: {
-        Details: (props: PipelineRunDetailsProps) => <PipelineRunDetails {...props} />
-      }
+        Details: (props: PipelineRunDetailsProps) => <PipelineRunDetails {...props} />,
+      },
     },
     ...JxRelationsDetails.JX_K8S_KIND.map((i) => {
       return {
         kind: i.kind,
         apiVersions: i.apiVersions,
         components: {
-          Details: (props: JxRelationsDetailsProps) => <JxRelationsDetails {...props} />
+          Details: (props: JxRelationsDetailsProps) => <JxRelationsDetails {...props} />,
         },
-        priority: -100
-      }
-    })
-  ]
+        priority: -100,
+      };
+    }),
+  ];
 }

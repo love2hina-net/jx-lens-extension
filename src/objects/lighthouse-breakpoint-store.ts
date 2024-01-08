@@ -1,6 +1,6 @@
-import { Renderer } from "@k8slens/extensions";
+import { Renderer } from '@k8slens/extensions';
 
-import { LighthouseBreakpoint, LighthouseBreakpointFilter, BreakpointFilterMatches } from "./lighthouse-breakpoint";
+import { LighthouseBreakpoint, LighthouseBreakpointFilter, BreakpointFilterMatches } from './lighthouse-breakpoint';
 
 export class LighthouseBreakpointsApi extends Renderer.K8sApi.KubeApi<LighthouseBreakpoint> {}
 
@@ -14,7 +14,7 @@ export class LighthouseBreakpointsStore extends Renderer.K8sApi.KubeObjectStore<
   }
 
   getBreakpointForActivity(filter: LighthouseBreakpointFilter): LighthouseBreakpoint | undefined {
-    return this.items.find(r => BreakpointFilterMatches(filter, r.spec.filter));
+    return this.items.find((item) => BreakpointFilterMatches(filter, item.spec.filter));
   }
 }
 

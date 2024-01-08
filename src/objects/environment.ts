@@ -1,6 +1,6 @@
 import { Renderer } from '@k8slens/extensions';
 
-import { dateFromNow } from '../common';
+import { createdTime, dateFromNow } from '../common';
 
 type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
 
@@ -17,17 +17,16 @@ export type EnvironmentSpec = {
   };
 };
 
-export type EnvironmentStatus = {
-}
+export type EnvironmentStatus = Record<string, never>;
 
 export class Environment extends Renderer.K8sApi.KubeObject<
-  NamespaceScopedMetadata,
-  EnvironmentStatus,
-  EnvironmentSpec
+NamespaceScopedMetadata,
+EnvironmentStatus,
+EnvironmentSpec
 > {
-  static readonly kind = 'Environment'
-  static readonly namespaced = true
-  static readonly apiBase = '/apis/jenkins.io/v1/environments'
+  static readonly kind = 'Environment';
+  static readonly namespaced = true;
+  static readonly apiBase = '/apis/jenkins.io/v1/environments';
 
   get sourceUrl(): string {
     return this.spec.source?.url ?? '';
@@ -37,7 +36,7 @@ export class Environment extends Renderer.K8sApi.KubeObject<
     return dateFromNow(this.metadata.creationTimestamp);
   }
 
-  get createdTime(): any {
-    return this.createdTime(this.metadata.creationTimestamp);
+  get createdTime(): string {
+    return createdTime(this.metadata.creationTimestamp);
   }
 }

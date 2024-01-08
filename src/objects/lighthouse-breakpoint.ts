@@ -1,6 +1,6 @@
 import { Renderer } from '@k8slens/extensions';
 
-import { dateFromNow } from '../common';
+import { createdTime, dateFromNow } from '../common';
 
 type NamespaceScopedMetadata = Renderer.K8sApi.NamespaceScopedMetadata;
 
@@ -9,35 +9,34 @@ export type LighthouseBreakpointFilter = {
   repository?: string;
   branch?: string;
   context?: string;
-}
+};
 
 export type LighthouseBreakpointDebug = {
   breakpoint?: string[];
-}
+};
 
 export type LighthouseBreakpointSpec = {
   filter?: LighthouseBreakpointFilter;
   debug?: LighthouseBreakpointDebug;
 };
 
-export type LighthouseBreakpointStatus = {
-}
+export type LighthouseBreakpointStatus = Record<string, never>;
 
 export class LighthouseBreakpoint extends Renderer.K8sApi.KubeObject<
-  NamespaceScopedMetadata,
-  LighthouseBreakpointStatus,
-  LighthouseBreakpointSpec
+NamespaceScopedMetadata,
+LighthouseBreakpointStatus,
+LighthouseBreakpointSpec
 > {
-  static readonly kind = 'LighthouseBreakpoint'
-  static readonly namespaced = true
-  static readonly apiBase = '/apis/lighthouse.jenkins.io/v1alpha1/lighthousebreakpoints'
+  static readonly kind = 'LighthouseBreakpoint';
+  static readonly namespaced = true;
+  static readonly apiBase = '/apis/lighthouse.jenkins.io/v1alpha1/lighthousebreakpoints';
 
   get createdAt(): string {
     return dateFromNow(this.metadata.creationTimestamp);
   }
 
-  get createdTime(): any {
-    return this.createdTime(this.metadata.creationTimestamp);
+  get createdTime(): string {
+    return createdTime(this.metadata.creationTimestamp);
   }
 }
 

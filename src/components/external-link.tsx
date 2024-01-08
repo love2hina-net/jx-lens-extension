@@ -28,17 +28,15 @@ const {
   Navigation,
 } = Renderer;
 
-
 export interface ExternalLinkProps {
   href: string;
   text: string;
   title: string;
 }
 
-
 export class ExternalLink extends React.Component<ExternalLinkProps> {
   render() {
-    const {href, text, title} = this.props;
+    const { href, text, title } = this.props;
 
     return (
       <a onClick={() => this.openLink(href)} title={title}>{text}</a>

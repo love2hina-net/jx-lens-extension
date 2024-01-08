@@ -10,13 +10,13 @@ export type PipelineActivityCoreStep = {
   status?: string;
   startedTimestamp?: string;
   completedTimestamp?: string;
-}
+};
 
 export type PipelineActivityPreviewStep = PipelineActivityCoreStep & {
   applicationURL?: string;
   environment?: string;
   pullRequestURL?: string;
-}
+};
 
 export type PipelineActivityPromoteStep = PipelineActivityCoreStep & {
   environment?: string;
@@ -31,18 +31,18 @@ export type PipelineActivityPromoteStep = PipelineActivityCoreStep & {
     }[];
   };
   applicationURL?: string;
-}
+};
 
 export type PipelineActivityStageStep = PipelineActivityCoreStep & {
   steps?: PipelineActivityCoreStep[];
-}
+};
 
 export type PipelineActivityStep = {
   kind: string;
   preview?: PipelineActivityPreviewStep;
   promote?: PipelineActivityPromoteStep;
   stage?: PipelineActivityStageStep;
-}
+};
 
 export type PipelineActivitySpec = {
   attachments?: {
@@ -82,16 +82,16 @@ export type PipelineActivitySpec = {
   message?: string;
   steps?: PipelineActivityStep[];
   version?: string;
-}
+};
 
 export type PipelineActivityStatus = {
   version?: string;
-}
+};
 
 export class PipelineActivity extends Renderer.K8sApi.KubeObject<
-  NamespaceScopedMetadata,
-  PipelineActivityStatus,
-  PipelineActivitySpec
+NamespaceScopedMetadata,
+PipelineActivityStatus,
+PipelineActivitySpec
 > {
   static readonly kind = 'PipelineActivity';
   static readonly namespaced = true;
@@ -100,7 +100,7 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
   get buildName(): string {
     const { build, context } = this.spec;
 
-    return (build && context)? `#${build} ${context}` : build || context || '';
+    return (build && context) ? `#${build} ${context}` : build || context || '';
   }
 
   get createdAt(): string {
@@ -111,7 +111,7 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
     return `${this.spec.gitOwner}/${this.spec.gitRepository}/${this.spec.gitBranch} ${this.buildName}`;
   }
 
-  get createdTime(): any {
+  get createdTime(): string {
     return createdTime(this.metadata.creationTimestamp);
   }
 
@@ -146,7 +146,7 @@ export class PipelineActivity extends Renderer.K8sApi.KubeObject<
     const podName = this.metadata.labels['podName'];
 
     if (podName) {
-      //console.log('looking up pod', podName, 'in namespace', namespace)
+      // console.log('looking up pod', podName, 'in namespace', namespace)
       return store.getByName(podName, namespace);
     }
 

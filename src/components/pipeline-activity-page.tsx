@@ -5,15 +5,12 @@ import React from 'react';
 import kebabCase from 'lodash/kebabCase';
 
 import { pipelineActivitiesStore } from '../objects/pipeline-activity-store';
-import { PipelineActivity } from '../objects/pipeline-activity'
+import { PipelineActivity } from '../objects/pipeline-activity';
 import { lighthouseBreakpointsStore } from '../objects/lighthouse-breakpoint-store';
 import { ExternalLink } from './external-link';
 
 const {
-  Component: {
-    KubeObjectListLayout,
-    TabLayout,
-  },
+  Component: { KubeObjectListLayout, TabLayout },
 } = Renderer;
 
 enum sortBy {
@@ -21,7 +18,7 @@ enum sortBy {
   repository = 'repository',
   branch = 'branch',
   status = 'status',
-  age = 'age'
+  age = 'age',
 }
 
 enum activityStatusType {
@@ -59,18 +56,16 @@ export class PipelineActivityPage extends React.Component {
             [sortBy.status]: (activity: PipelineActivity) => activity.spec.status,
             [sortBy.age]: (activity: PipelineActivity) => activity.createdTime,
           }}
-          searchFilters={[
-            (activity: PipelineActivity) => activity.getSearchFields()
-          ]}
+          searchFilters={[(activity: PipelineActivity) => activity.getSearchFields()]}
           renderHeaderTitle='Pipelines'
           renderTableHeader={[
-            {title: 'Owner', className: 'owner', sortBy: sortBy.owner},
-            {title: 'Repository', className: 'repository', sortBy: sortBy.repository},
-            {title: 'Branch', className: 'branch', sortBy: sortBy.branch},
-            {title: 'Build', className: 'build'},
-            {title: 'Status', className: 'status', sortBy: sortBy.status},
-            {title: 'Message', className: 'message'},
-            {title: 'Age', className: 'age', sortBy: sortBy.age},
+            { title: 'Owner', className: 'owner', sortBy: sortBy.owner },
+            { title: 'Repository', className: 'repository', sortBy: sortBy.repository },
+            { title: 'Branch', className: 'branch', sortBy: sortBy.branch },
+            { title: 'Build', className: 'build' },
+            { title: 'Status', className: 'status', sortBy: sortBy.status },
+            { title: 'Message', className: 'message' },
+            { title: 'Age', className: 'age', sortBy: sortBy.age },
           ]}
           renderTableContents={(activity: PipelineActivity) => {
             return [
@@ -80,12 +75,12 @@ export class PipelineActivityPage extends React.Component {
               activity.buildName,
               PipelineActivityPage.renderStatus(activity),
               PipelineActivityPage.renderLastStep(activity),
-              activity.createdAt
+              activity.createdAt,
             ];
           }}
         />
       </TabLayout>
-    )
+    );
   }
 
   // renderLastStep returns the last step
@@ -93,9 +88,7 @@ export class PipelineActivityPage extends React.Component {
     const status = pa.spec.status;
     if (status) {
       const statusClass = 'status-' + kebabCase(status);
-      return (
-        <span className={styles[statusClass]}>{status}</span>
-      );
+      return <span className={styles[statusClass]}>{status}</span>;
     }
     else {
       return '';
@@ -123,7 +116,7 @@ export class PipelineActivityPage extends React.Component {
         let title = pr?.name;
 
         if (prURL) {
-          let prName = 'PR'
+          let prName = 'PR';
           const i = prURL.lastIndexOf('/');
           if (i > 0 && i < prURL.length) {
             prName = prURL.substring(i + 1);
@@ -134,11 +127,14 @@ export class PipelineActivityPage extends React.Component {
             title = 'Promote to ' + env;
           }
           return (
-            <span>{title}&nbsp;
+            <span>
+              {title}
+              &nbsp;
               <ExternalLink
                 href={prURL}
                 text={'#' + prName}
-                title='view the prompte Pull Request' />
+                title='view the prompte Pull Request'
+              />
             </span>
           );
         }
@@ -152,11 +148,13 @@ export class PipelineActivityPage extends React.Component {
         if (appURL) {
           const title = preview.name ?? 'Preview';
           return (
-            <span>Promote&nbsp;
+            <span>
+              Promote&nbsp;
               <ExternalLink
                 href={appURL}
                 text={title}
-                title='view the preview application' />
+                title='view the preview application'
+              />
             </span>
           );
         }

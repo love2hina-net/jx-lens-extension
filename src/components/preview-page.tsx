@@ -1,10 +1,10 @@
 import styles from '../../styles.module.scss';
 
-import {Renderer} from '@k8slens/extensions';
+import { Renderer } from '@k8slens/extensions';
 import React from 'react';
-import {previewsStore} from '../objects/preview-store';
-import {Preview} from '../objects/preview'
-import {ExternalLink} from './external-link';
+import { previewsStore } from '../objects/preview-store';
+import { Preview } from '../objects/preview';
+import { ExternalLink } from './external-link';
 
 enum sortBy {
   owner = 'owner',
@@ -12,18 +12,17 @@ enum sortBy {
   pr = 'pr',
   comment = 'comment',
   author = 'author',
-  age = 'age'
+  age = 'age',
 }
 
-
 export class PreviewPage extends React.Component {
-
   render() {
     return (
       <Renderer.Component.TabLayout>
         <Renderer.Component.KubeObjectListLayout
           tableId='previews'
-          className={styles.PreviewList} store={previewsStore}
+          className={styles.PreviewList}
+          store={previewsStore}
           sortingCallbacks={{
             [sortBy.owner]: (preview: Preview) => preview.spec.pullRequest?.owner,
             [sortBy.repository]: (preview: Preview) => preview.spec.pullRequest?.repository,
@@ -33,17 +32,17 @@ export class PreviewPage extends React.Component {
             [sortBy.age]: (preview: Preview) => preview.createdTime,
           }}
           searchFilters={[
-            (preview: Preview) => preview.getSearchFields()
+            (preview: Preview) => preview.getSearchFields(),
           ]}
           renderHeaderTitle='Previews'
           renderTableHeader={[
-            {title: 'Owner', className: 'owner', sortBy: sortBy.owner},
-            {title: 'Repository', className: 'repository', sortBy: sortBy.repository},
-            {title: 'PR', className: 'pr', sortBy: sortBy.pr},
-            {title: 'Comment', className: 'comment', sortBy: sortBy.comment},
-            {title: 'Author', className: 'author'},
-            {title: 'Preview', className: 'preview'},
-            {title: 'Age', className: 'age', sortBy: sortBy.age},
+            { title: 'Owner', className: 'owner', sortBy: sortBy.owner },
+            { title: 'Repository', className: 'repository', sortBy: sortBy.repository },
+            { title: 'PR', className: 'pr', sortBy: sortBy.pr },
+            { title: 'Comment', className: 'comment', sortBy: sortBy.comment },
+            { title: 'Author', className: 'author' },
+            { title: 'Preview', className: 'preview' },
+            { title: 'Age', className: 'age', sortBy: sortBy.age },
           ]}
           renderTableContents={(preview: Preview) => {
             return [
@@ -53,12 +52,12 @@ export class PreviewPage extends React.Component {
               renderComment(preview),
               renderAuthor(preview),
               renderPreview(preview),
-              preview.createdAt
+              preview.createdAt,
             ];
           }}
         />
       </Renderer.Component.TabLayout>
-    )
+    );
   }
 }
 
@@ -69,7 +68,7 @@ function renderPreview(preview: Preview) {
   }
   const appURL = preview.spec.resources?.url;
   if (!appURL) {
-    return ''
+    return '';
   }
   return (
     <ExternalLink href={appURL} text='try me' title='try out the preview'></ExternalLink>
@@ -95,7 +94,7 @@ function renderAuthor(preview: Preview) {
   }
   const imageUrl = user.imageUrl;
   if (!imageUrl) {
-    return <span>{user.username}</span>
+    return <span>{user.username}</span>;
   }
   let linkUrl = user.linkUrl;
   if (!linkUrl) {
@@ -103,19 +102,19 @@ function renderAuthor(preview: Preview) {
   }
   return (
     <span
-        title={user.username}
-        className={styles['author-details']}
+      title={user.username}
+      className={styles['author-details']}
     >
       <figure key='image'>
         <img
-          height='18' width='18'
+          height='18'
+          width='18'
           src={imageUrl}
-          onLoad={evt => evt.currentTarget.classList.add('visible')}
+          onLoad={(evt) => evt.currentTarget.classList.add('visible')}
         />
       </figure>
       &nbsp;
-      <ExternalLink href={linkUrl} text={user.username} title='view the user in git'/>
+      <ExternalLink href={linkUrl} text={user.username} title='view the user in git' />
     </span>
   );
 }
-

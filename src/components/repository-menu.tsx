@@ -37,24 +37,22 @@ const {
   Util,
 } = Common;
 
-
-export interface RepositoryMenuProps extends Renderer.Component.KubeObjectMenuProps<SourceRepository> {
-}
-
+export type RepositoryMenuProps = Renderer.Component.KubeObjectMenuProps<SourceRepository>;
 
 export class RepositoryMenu extends React.Component<RepositoryMenuProps> {
   render() {
-    const {object, toolbar} = this.props;
-
+    const { object, toolbar } = this.props;
     const appURL = object.spec.url;
     if (!appURL) {
       return '';
     }
 
     return (
-      <MenuItem onClick={Util.prevDefault(() => openExternalLink(appURL))}
-                title='View the repository'>
-        <Icon material='visibility' interactive={toolbar}/>
+      <MenuItem
+        onClick={Util.prevDefault(() => openExternalLink(appURL))}
+        title='View the repository'
+      >
+        <Icon material='visibility' interactive={toolbar} />
         <span className='title'>View Repository</span>
       </MenuItem>
     );
@@ -66,4 +64,3 @@ export class RepositoryMenu extends React.Component<RepositoryMenuProps> {
     openExternalLink(link);
   }
 }
-

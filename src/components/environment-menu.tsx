@@ -37,24 +37,22 @@ const {
   Util,
 } = Common;
 
-
-export interface EnvironmentMenuProps extends Renderer.Component.KubeObjectMenuProps<Environment> {
-}
-
+export type EnvironmentMenuProps = Renderer.Component.KubeObjectMenuProps<Environment>;
 
 export class EnvironmentMenu extends React.Component<EnvironmentMenuProps> {
   render() {
-    const {object, toolbar} = this.props;
-
-    let appURL = object.sourceUrl;
+    const { object, toolbar } = this.props;
+    const appURL = object.sourceUrl;
     if (!appURL) {
       return '';
     }
 
     return (
-      <MenuItem onClick={Util.prevDefault(() => openExternalLink(appURL))}
-                title='View the environment source repository'>
-        <Icon material='visibility' interactive={toolbar}/>
+      <MenuItem
+        onClick={Util.prevDefault(() => openExternalLink(appURL))}
+        title='View the environment source repository'
+      >
+        <Icon material='visibility' interactive={toolbar} />
         <span className='title'>View Repository</span>
       </MenuItem>
     );
@@ -66,4 +64,3 @@ export class EnvironmentMenu extends React.Component<EnvironmentMenuProps> {
     openExternalLink(link);
   }
 }
-

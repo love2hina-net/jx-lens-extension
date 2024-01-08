@@ -10,7 +10,7 @@ export const renderer: webpack.Configuration = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.tsx?$/i,
         use: [
           {
             loader: 'ts-loader',
@@ -22,17 +22,21 @@ export const renderer: webpack.Configuration = {
         exclude: /node_modules/,
       },
       {
-        test: /\.s?css$/,
+        test: /\.s?css$/i,
         use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.svg$/i,
+        type: 'asset/source',
       },
     ],
   },
   externals: [
     {
       '@k8slens/extensions': 'var global.LensExtensions',
-      react: 'var global.React',
+      'react': 'var global.React',
       'react-router-dom': 'var global.ReactRouterDom',
-      mobx: 'var global.Mobx',
+      'mobx': 'var global.Mobx',
     },
   ],
   resolve: {

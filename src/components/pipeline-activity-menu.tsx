@@ -61,7 +61,7 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
         { this.renderShellsMenu(steps, toolbar) }
         { this.renderBreakpointsMenu(activity, toolbar) }
         <MenuItem onClick={Util.prevDefault(() => this.openLink(link))} title='View git repository'>
-          <Icon material='source' interactive={toolbar}/>
+          <Icon material='source' interactive={toolbar} />
           <span className='title'>Repository</span>
         </MenuItem>
         { this.renderMenuItems(activity, toolbar) }
@@ -73,33 +73,34 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
     const latestContainerName = findLatestRunningContainerStep(steps, true);
 
     return (
-      <MenuItem
-        disabled={steps.length == 0}>
-        <Icon material='subject' interactive={toolbar} tooltip={toolbar && 'View the pipeline logs'}/>
+      <MenuItem disabled={steps.length == 0}>
+        <Icon material='subject' interactive={toolbar} tooltip={toolbar && 'View the pipeline logs'} />
         <span className='title'>Logs</span>
 
         <>
-          <Icon className='arrow' material='keyboard_arrow_right'/>
+          <Icon className='arrow' material='keyboard_arrow_right' />
           <SubMenu>
             { $if!(latestContainerName, () => (
               <MenuItem
                 key={'latest-step-' + latestContainerName}
                 onClick={Util.prevDefault(() => this.viewLogs(latestContainerName))}
                 className='flex align-center'
-                title={'view logs for the latest pipeline step: ' + latestContainerName}>
-                <StatusBrick/>
+                title={'view logs for the latest pipeline step: ' + latestContainerName}
+              >
+                <StatusBrick />
                 <span>latest step</span>
               </MenuItem>
             )) }
             { $if!(latestContainerName && steps.length > 1, () => (
               <>
                 <MenuItem
-                  key={'-separator-'}
-                  className='flex align-center'>
+                  key='-separator-'
+                  className='flex align-center'
+                >
                   <span></span>
                 </MenuItem>
                 {
-                  steps.map(step => {
+                  steps.map((step) => {
                     const name = PipelineActivity.toContainerName(step);
 
                     return (
@@ -107,8 +108,9 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
                         key={name}
                         onClick={Util.prevDefault(() => this.viewLogs(name))}
                         className='flex align-center'
-                        title='view logs for this pipeline step'>
-                        <StatusBrick/>
+                        title='view logs for this pipeline step'
+                      >
+                        <StatusBrick />
                         <span>{ name }</span>
                       </MenuItem>
                     );
@@ -126,33 +128,34 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
     const runningContainerStep = findLatestRunningContainerStep(steps, false);
 
     return (
-      <MenuItem
-        disabled={steps.length == 0 || !runningContainerStep}>
-        <Icon svg='ssh' interactive={toolbar} tooltip={toolbar && 'Pod Shell'}/>
+      <MenuItem disabled={steps.length == 0 || !runningContainerStep}>
+        <Icon svg='ssh' interactive={toolbar} tooltip={toolbar && 'Pod Shell'} />
         <span className='title'>Shell</span>
         { $if!(steps.length > 0 && runningContainerStep, () => (
           <>
-            <Icon className='arrow' material='keyboard_arrow_right'/>
+            <Icon className='arrow' material='keyboard_arrow_right' />
             <SubMenu>
               { $if!(runningContainerStep, () => (
                 <MenuItem
                   key={'latest-step-' + runningContainerStep}
                   onClick={Util.prevDefault(() => this.execShell(runningContainerStep))}
                   className='flex align-center'
-                  title={'open a shell in the latest pipeline step: ' + runningContainerStep}>
-                  <StatusBrick/>
+                  title={'open a shell in the latest pipeline step: ' + runningContainerStep}
+                >
+                  <StatusBrick />
                   <span>latest step</span>
                 </MenuItem>
               )) }
               { $if!(runningContainerStep && steps.length > 1, () => (
                 <>
                   <MenuItem
-                    key={'-separator-'}
-                    className='flex align-center'>
+                    key='-separator-'
+                    className='flex align-center'
+                  >
                     <span></span>
                   </MenuItem>
                   {
-                    steps.map(step => {
+                    steps.map((step) => {
                       const name = PipelineActivity.toContainerName(step);
 
                       return (
@@ -160,8 +163,9 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
                           key={name}
                           onClick={Util.prevDefault(() => this.execShell(name))}
                           className='flex align-center'
-                          title='open a shell into this pipeline step'>
-                          <StatusBrick/>
+                          title='open a shell into this pipeline step'
+                        >
+                          <StatusBrick />
                           <span>{ name }</span>
                         </MenuItem>
                       );
@@ -180,27 +184,28 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
     const breakpoint = breakpointFromActivity(activity);
 
     return (
-      <MenuItem
-        disabled={!lighthouseBreakpointsStore.isLoaded}>
-        <Icon material='adb' interactive={toolbar} tooltip={toolbar && 'Pipeline breakpoint'}/>
+      <MenuItem disabled={!lighthouseBreakpointsStore.isLoaded}>
+        <Icon material='adb' interactive={toolbar} tooltip={toolbar && 'Pipeline breakpoint'} />
         <span className='title'>Breakpoint</span>
         { $if!(lighthouseBreakpointsStore.isLoaded, () => (
           <>
-            <Icon className='arrow' material='keyboard_arrow_right'/>
+            <Icon className='arrow' material='keyboard_arrow_right' />
             <SubMenu>
               { $if!(breakpoint, () => (
                 <MenuItem
                   onClick={Util.prevDefault(() => this.removeBreakpoint(breakpoint!))}
-                  title='Delete the breakpoint'>
-                  <Icon material='delete' interactive={toolbar} tooltip='Delete'/>
+                  title='Delete the breakpoint'
+                >
+                  <Icon material='delete' interactive={toolbar} tooltip='Delete' />
                   <span className='title'>Remove</span>
                 </MenuItem>
               )) }
               { $if!(!breakpoint, () => (
                 <MenuItem
                   onClick={Util.prevDefault(() => this.addBreakpoint(activity))}
-                  title='Add breakpoint breakpoint'>
-                  <Icon material='add' interactive={toolbar}/>
+                  title='Add breakpoint breakpoint'
+                >
+                  <Icon material='add' interactive={toolbar} />
                   <span className='title'>Add</span>
                 </MenuItem>
               )) }
@@ -224,8 +229,9 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
         links.push((
           <MenuItem
             onClick={Util.prevDefault(() => openExternalLink(releaseNotesURL))}
-            title='view the release notes'>
-            <Icon material='description' interactive={toolbar}/>
+            title='view the release notes'
+          >
+            <Icon material='description' interactive={toolbar} />
             <span className='title'>{version}</span>
           </MenuItem>
         ));
@@ -237,13 +243,8 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
           const pr = promote.pullRequest;
           const prURL = pr?.pullRequestURL;
           let title = pr?.name;
-          
+
           if (prURL) {
-            let prName = 'PR'
-            const i = prURL.lastIndexOf('/');
-            if (i > 0 && i < prURL.length) {
-              prName = prURL.substring(i + 1);
-            }
             const env = promote.environment;
             if (env) {
               // TODO to title for env
@@ -253,8 +254,9 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
             links.push((
               <MenuItem
                 onClick={Util.prevDefault(() => openExternalLink(prURL))}
-                title='view the promote Pull Request'>
-                <Icon material='code' interactive={toolbar}/>
+                title='view the promote Pull Request'
+              >
+                <Icon material='code' interactive={toolbar} />
                 <span className='title'>{title}</span>
               </MenuItem>
             ));
@@ -266,13 +268,14 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
           if (appURL) {
             let title = preview.name;
             if (!title) {
-              title = 'Preview'
+              title = 'Preview';
             }
             links.push((
               <MenuItem
                 onClick={Util.prevDefault(() => openExternalLink(appURL))}
-                title='View the preview environment application'>
-                <Icon material='visibility' interactive={toolbar}/>
+                title='View the preview environment application'
+              >
+                <Icon material='visibility' interactive={toolbar} />
                 <span className='title'>View Preview</span>
               </MenuItem>
             ));
@@ -295,7 +298,7 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
 
     const activity = this.props.object;
     const pod = activity.podFromActivity;
-    //console.log('found pod', pod);
+    // console.log('found pod', pod);
     if (!pod) {
       console.log('could not find pod for PipelineActivity', activity);
       return;
@@ -332,25 +335,31 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
 
     if (pod.getSelectedNodeOs() === 'windows') {
       command = `${command} powershell`;
-    } else {
+    }
+    else {
       command = `${command} sh -c 'clear; (bash || ash || sh)'`;
     }
 
     const shell = createTerminalTab({
-      title: `Pod: ${pod.getName()} (namespace: ${pod.getNs()})`
+      title: `Pod: ${pod.getName()} (namespace: ${pod.getNs()})`,
     });
 
     terminalStore.sendCommand(command, {
       enter: true,
-      tabId: shell.id
+      tabId: shell.id,
     });
   }
 
   async removeBreakpoint(breakpoint: LighthouseBreakpoint) {
     ConfirmDialog.open({
       ok: () => this.doRemoveBreakpoint(breakpoint),
-      labelOk: `Remove`,
-      message: <div>Remove the Breakpoint <b>{breakpoint.metadata.name}</b>?</div>,
+      labelOk: 'Remove',
+      message: (
+        <div>
+          Remove the Breakpoint
+          <b>{ breakpoint.metadata.name }</b>
+          ?
+        </div>),
     });
   }
 
@@ -358,12 +367,16 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
     return lighthouseBreakpointsStore.remove(breakpoint);
   }
 
-
   async addBreakpoint(activity: PipelineActivity) {
     ConfirmDialog.open({
       ok: () => this.doAddBreakpoint(activity),
-      labelOk: `Add`,
-      message: <div>Add a breakpoint for the Pipeline <b>{activity.metadata.name}</b>?</div>,
+      labelOk: 'Add',
+      message: (
+        <div>
+          Add a breakpoint for the Pipeline
+          <b>{activity.metadata.name}</b>
+          ?
+        </div>),
     });
   }
 
@@ -376,13 +389,13 @@ export class PipelineActivityMenu extends React.Component<PipelineActivityMenuPr
         filter: filter,
         debug: {
           breakpoint: ['onFailure'],
-        }
-      }
-    }
-    
+        },
+      },
+    };
+
     lighthouseBreakpointsStore.create({
       name: name,
-      namespace: ns
+      namespace: ns,
     }, bp);
   }
 }
@@ -398,8 +411,8 @@ function activityToBreakpointFilter(activity: PipelineActivity): LighthouseBreak
     branch: spec.gitBranch,
     owner: spec.gitOwner,
     repository: spec.gitRepository,
-    context: spec.context
-  }
+    context: spec.context,
+  };
 }
 
 function findLatestRunningContainerStep(containers: PipelineActivityCoreStep[], useLastIfNotRunning: boolean): string {
@@ -407,5 +420,5 @@ function findLatestRunningContainerStep(containers: PipelineActivityCoreStep[], 
   if (useLastIfNotRunning && !latest) {
     latest = containers.at(-1);
   }
-  return (latest)? PipelineActivity.toContainerName(latest) : '';
+  return (latest) ? PipelineActivity.toContainerName(latest) : '';
 }

@@ -8,7 +8,7 @@ const {
     Button,
     DrawerItem,
     DrawerTitle,
-  }
+  },
 } = Renderer;
 
 export type PipelineRunDetailsProps = Renderer.Component.KubeObjectDetailsProps<PipelineRun>;
@@ -17,23 +17,23 @@ type PipelineRunDetailsState = {
   taskRuns: {
     [name: string]: {
       steps: {
-        [name: string]: Renderer.K8sApi.Pod | undefined
-      }
-    }
-  }
-}
+        [name: string]: Renderer.K8sApi.Pod | undefined;
+      };
+    };
+  };
+};
 
 export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps, PipelineRunDetailsState> {
   constructor(props: PipelineRunDetailsProps) {
     super(props);
     this.state = {
-      taskRuns: {}
+      taskRuns: {},
     };
   }
 
   async componentDidMount() {
     const newState: PipelineRunDetailsState = {
-      taskRuns: {}
+      taskRuns: {},
     };
     const namespace = this.props.object.metadata.namespace ?? '';
 
@@ -83,10 +83,12 @@ export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps,
                   </DrawerItem>
                   <div style={{ paddingLeft: '2em' }}>
                     <DrawerItem name='Container'>
-                      { step.container }&nbsp;
+                      { step.container }
+                      &nbsp;
                       <Button
                         disabled={this.state.taskRuns[name]?.steps[step.name] == undefined}
-                        onClick={() => this.showLogs(this.state.taskRuns[name]?.steps[step.name], step.container)}>
+                        onClick={() => this.showLogs(this.state.taskRuns[name]?.steps[step.name], step.container)}
+                      >
                         Log
                       </Button>
                     </DrawerItem>
@@ -113,7 +115,7 @@ export class PipelineRunDetails extends React.Component<PipelineRunDetailsProps,
     else {
       Renderer.Component.notificationsStore.add({
         message: `Container ${container} was not found, probably the pod was already expired.`,
-        status: Renderer.Component.NotificationStatus.ERROR
+        status: Renderer.Component.NotificationStatus.ERROR,
       });
     }
   }
