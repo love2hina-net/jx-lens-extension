@@ -1,7 +1,9 @@
 import { Renderer } from '@k8slens/extensions';
 import React from 'react';
+import { TreeView, TreeItem } from '@mui/x-tree-view';
 
-import { PipelineActivity, PipelineActivityStep, PipelineActivityStageStep } from '../objects/pipeline-activity';
+import { PipelineActivity, PipelineActivityStep, PipelineActivityCoreStep } from '../objects/pipeline-activity';
+import { createdTime } from '../common';
 
 const {
   Component: {
@@ -10,24 +12,22 @@ const {
   },
 } = Renderer;
 
+function CollapseIcon() {
+  return (
+    <Renderer.Component.Icon material='expand_more' tooltip='Expand' />
+  );
+}
+
+function ExpandIcon() {
+  return (
+    <Renderer.Component.Icon material='chevron_right' tooltip='Expand' />
+  );
+}
+
 export type PipelineActivityDetailsProps = Renderer.Component.KubeObjectDetailsProps<PipelineActivity>;
 
 export class PipelineActivityDetails extends React.Component<PipelineActivityDetailsProps> {
   render() {
-    /*
-      <div>
-        <nav>
-          <Renderer.Component..
-          <RecursiveTreeView data={dataTree}/>
-        </nav>
-        <section id='application'>
-          <h1>Application</h1>
-        </section>
-      </div>
-     */
-
-    // TODO a tree would be great! :)
-
     /*
       // TODO: BUG: 1つのアクティビティで複数のPodがあるので、正しくない
       <div className='Activity'>
@@ -54,10 +54,10 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
           { activity.pipelineDescription }
         </DrawerItem>
         <DrawerItem name='Started'>
-          { activity.spec.startedTimestamp }
+          { createdTime(activity.spec.startedTimestamp) }
         </DrawerItem>
         <DrawerItem name='Completed'>
-          { activity.spec.completedTimestamp }
+          { createdTime(activity.spec.completedTimestamp) }
         </DrawerItem>
         <DrawerItem name='Status'>
           { activity.spec.status }
@@ -87,80 +87,54 @@ export class PipelineActivityDetails extends React.Component<PipelineActivityDet
         </DrawerItem>
 
         <DrawerTitle children='Steps' />
-        {
-          activity.spec.steps?.map(this.renderStep, this)
-        }
+        <TreeView
+          aria-label='Jenkins X Pipeline Steps'
+          defaultExpandIcon={<ExpandIcon />}
+          defaultCollapseIcon={<CollapseIcon />}
+        >
+          { activity.spec.steps?.map(this.renderStepNodes, this) }
+        </TreeView>
       </div>
     );
   }
 
-  private renderStep(step: PipelineActivityStep, index: number): React.JSX.Element {
+  private renderStepNodes(step: PipelineActivityStep, index: number): React.JSX.Element {
     switch (step.kind.toLowerCase()) {
       case 'preview':
-        return (
-          <>
-            <DrawerItem name={`${index + 1}: Preview`}>
-              { step.preview?.name ?? 'Unknown' }
-            </DrawerItem>
-            { /* TODO: render preview details */ }
-          </>
-        );
+        return this.renderStepCoreNodes(step.preview, 'step', index);
+        /* TODO: render preview details */
       case 'promote':
-        return (
-          <>
-            <DrawerItem name={`${index + 1}: Promote`}>
-              { step.promote?.name ?? 'Unknown' }
-            </DrawerItem>
-            { /* TODO: render promote details */ }
-          </>
-        );
+        return this.renderStepCoreNodes(step.promote, 'step', index);
+        /* TODO: render promote details */
       case 'stage':
-        return (
-          <>
-            <DrawerItem name={`${index + 1}: Stage`}>
-              { step.stage?.name ?? 'Unknown' }
-            </DrawerItem>
-            <div style={{ paddingLeft: '2em' }}>
-              <DrawerItem name='Started'>
-                { step.stage?.startedTimestamp }
-              </DrawerItem>
-              <DrawerItem name='Completed'>
-                { step.stage?.completedTimestamp }
-              </DrawerItem>
-              <DrawerItem name='Status'>
-                { step.stage?.status }
-              </DrawerItem>
-              {
-                step.stage?.steps?.map(this.renderStageStep, this)
-              }
-            </div>
-          </>
-        );
+        return this.renderStepCoreNodes(step.stage, 'step', index, (baseId) => {
+          return (<>{ step.stage?.steps?.map((step, i) => this.renderStepCoreNodes(step, baseId, i), this) }</>);
+        });
       default:
         return (
-          <DrawerItem name={`Unknown type: ${step.kind}`} labelsOnly />
+          <TreeItem nodeId={`step-${index}`} label={`Unknown type: ${step.kind}`} />
         );
     }
   }
 
-  private renderStageStep(step: PipelineActivityStageStep, index: number): React.JSX.Element {
+  private renderStepCoreNodes(
+    step: PipelineActivityCoreStep | undefined,
+    baseId: string,
+    index: number,
+    optional?: (baseId: string) => React.JSX.Element): React.JSX.Element {
+    const id = `${baseId}-${index}`;
     return (
-      <>
-        <DrawerItem name={`${index + 1}: Step`}>
-          { step.name }
-        </DrawerItem>
-        <div style={{ paddingLeft: '2em' }}>
-          <DrawerItem name='Started'>
-            { step.startedTimestamp }
-          </DrawerItem>
-          <DrawerItem name='Completed'>
-            { step.completedTimestamp }
-          </DrawerItem>
-          <DrawerItem name='Status'>
-            { step.status }
-          </DrawerItem>
-        </div>
-      </>
+      <TreeItem nodeId={id} label={<DrawerItem name={`${index + 1}:`}>{ step?.name ?? 'Unknown' }</DrawerItem>}>
+        { step && (
+          <>
+            <TreeItem nodeId={`${id}-desc`} label={<DrawerItem name='Description'>{ step.description }</DrawerItem>} />
+            <TreeItem nodeId={`${id}-status`} label={<DrawerItem name='Status'>{ step.status }</DrawerItem>} />
+            <TreeItem nodeId={`${id}-start`} label={<DrawerItem name='Started'>{ createdTime(step.startedTimestamp) }</DrawerItem>} />
+            <TreeItem nodeId={`${id}-complete`} label={<DrawerItem name='Completed'>{ createdTime(step.completedTimestamp) }</DrawerItem>} />
+            { optional && optional(id) }
+          </>
+        ) }
+      </TreeItem>
     );
   }
 }
